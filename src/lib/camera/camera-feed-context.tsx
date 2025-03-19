@@ -1,16 +1,15 @@
-import cameraActionApi, {
-  GetStatusResponse,
-} from "@/lib/camera/cameraActionApi";
+import { GetStatusResponse } from "@/lib/camera/cameraActionApi";
 import { useStreamUrl } from "@/lib/camera/player/useStreamUrl";
-import { CameraDevice, PTZPayload } from "@/lib/camera/types";
+import { CameraDevice } from "@/lib/camera/types";
 import useCameraStatus from "@/lib/camera/useCameraStatus";
-import { mutate, query } from "@/lib/request";
 import {
-  UseMutateFunction,
-  useMutation,
-  useQuery,
-} from "@tanstack/react-query";
-import { createContext, useContext, useRef, useState } from "react";
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 
 type PlayerStatus = "loading" | "playing" | "stopped";
 
@@ -30,7 +29,8 @@ type ICameraFeedContext = {
   cameraStatus: GetStatusResponse | undefined;
   cameraStatusLoading: boolean;
 
-  relativeMove: UseMutateFunction<unknown, Error, PTZPayload, unknown>;
+  ptzPrecision: number;
+  setPtzPrecision: Dispatch<SetStateAction<number>>;
 };
 
 const CameraFeedContext = createContext<ICameraFeedContext | null>(null);
@@ -45,17 +45,12 @@ export function CameraFeedProvider({
   const playerRef = useRef<HTMLVideoElement | null>(null);
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus>("loading");
   const [playedOn, setPlayedOn] = useState<Date>();
+  const [ptzPrecision, setPtzPrecision] = useState(1);
 
   const { data: streamUrl, isPending: isAuthenticating } = useStreamUrl(device);
 
   const { data: cameraStatus, isFetching: cameraStatusLoading } =
     useCameraStatus(device);
-
-  const { mutate: relativeMove } = useMutation({
-    mutationFn: mutate(cameraActionApi.relativeMove, {
-      pathParams: { cameraId: device.id },
-    }),
-  });
 
   return (
     <CameraFeedContext.Provider
@@ -70,7 +65,8 @@ export function CameraFeedProvider({
         isAuthenticating,
         cameraStatus,
         cameraStatusLoading,
-        relativeMove,
+        ptzPrecision,
+        setPtzPrecision,
       }}
     >
       {children}
