@@ -1,19 +1,26 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Autocomplete } from "@/components/ui/autocomplete";
 import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
+import cameraActionApi from "@/lib/camera/cameraActionApi";
+import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import camerasOfPresetLocationApi from "@/lib/camera/camerasOfPresetLocationApi";
 import CameraFeedControls from "@/lib/camera/player/feed-controls";
 import CameraFeedPlayer from "@/lib/camera/player/feed-player";
-import { query } from "@/lib/request";
+import { PositionPreset } from "@/lib/camera/types";
+import { query, mutate } from "@/lib/request";
 import { Encounter } from "@/lib/types/encounter";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 interface Props {
   encounter: Encounter;
 }
 
 export const CameraEncounterOverview = ({ encounter }: Props) => {
+  const [activeCamera, setActiveCamera] = useState<string>();
+  const [selectedPreset, setSelectedPreset] = useState<PositionPreset>();
+
   const { data: cameras, isLoading } = useQuery({
     queryKey: ["camera-devices", encounter.current_location?.id],
     queryFn: query(camerasOfPresetLocationApi.list, {
@@ -24,8 +31,32 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     enabled: !!encounter.current_location,
   });
 
-  // State to track the currently selected camera tab
-  const [activeCamera, setActiveCamera] = useState<string | null>(null);
+  const { data: positionPresets } = useQuery({
+    queryKey: ["camera-presets", activeCamera],
+    queryFn: query(cameraPositionPresetApi.list, {
+      pathParams: { cameraId: activeCamera ?? "" },
+      queryParams: { limit: 100 },
+    }),
+    enabled: !!activeCamera,
+  });
+
+  const { mutate: absoluteMove, isPending: isMoving } = useMutation({
+    mutationFn: mutate(cameraActionApi.absoluteMove, {
+      pathParams: { cameraId: activeCamera ?? "" },
+    }),
+  });
+
+  useEffect(() => {
+    if (positionPresets?.results.length) {
+      setSelectedPreset(positionPresets.results[0]);
+    }
+  }, [positionPresets]);
+
+  useEffect(() => {
+    if (selectedPreset) {
+      absoluteMove(selectedPreset.ptz);
+    }
+  }, [selectedPreset]);
 
   // Set the first camera as active when cameras data is loaded
   if (cameras?.results.length && !activeCamera) {
@@ -40,39 +71,50 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     return null;
   }
 
-  // If there's only one camera, directly show it without tabs
-  if (cameras.results.length === 1) {
-    const camera = cameras.results[0];
-    return (
-      <div className="flex flex-col gap-4">
-        <CameraFeedProvider key={camera.id} device={camera}>
-          <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
-            <CameraFeedPlayer />
-            <CameraFeedControls inlineView />
-          </div>
-        </CameraFeedProvider>
-      </div>
-    );
-  }
-
-  // If there are multiple cameras, show them in tabs
   return (
     <div className="flex flex-col gap-4">
       <Tabs value={activeCamera || undefined} onValueChange={setActiveCamera}>
-        <TabsList>
-          {cameras.results.map((camera) => (
-            <TabsTrigger key={camera.id} value={camera.id}>
-              {camera.user_friendly_name || camera.registered_name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="flex items-center justify-between mb-4">
+          <TabsList>
+            {cameras.results.map((camera) => (
+              <TabsTrigger key={camera.id} value={camera.id}>
+                {camera.user_friendly_name || camera.registered_name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
+          {/* Position Preset Selector */}
+          <div className="w-64 ml-4">
+            <Autocomplete
+              disabled={isMoving}
+              options={positionPresets?.results || []}
+              value={selectedPreset}
+              onSelect={setSelectedPreset}
+              placeholder="Select position preset..."
+              searchPlaceholder="Search presets..."
+              noResultsText="No position presets found"
+              renderOption={({ name }) => (
+                <span className="font-medium">{name}</span>
+              )}
+              renderValue={(preset) =>
+                preset?.name || "Select position preset..."
+              }
+              isLoading={!positionPresets}
+              className="w-full"
+            />
+          </div>
+        </div>
+
+        {/* Camera Feed Content */}
         {cameras.results.map((camera) => (
-          <TabsContent key={camera.id} value={camera.id} className="mt-4">
+          <TabsContent key={camera.id} value={camera.id}>
             <CameraFeedProvider device={camera}>
               <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
                 <CameraFeedPlayer />
-                <CameraFeedControls inlineView />
+                <CameraFeedControls
+                  inlineView
+                  onRelativeMoved={() => setSelectedPreset(undefined)}
+                />
               </div>
             </CameraFeedProvider>
           </TabsContent>

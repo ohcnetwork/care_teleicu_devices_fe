@@ -10,15 +10,15 @@ import { Loader2, TriangleIcon, ZoomInIcon, ZoomOutIcon } from "lucide-react";
 
 const metaKey = isAppleDevice ? "Meta" : "Control";
 
-interface Props {
-  shortcutsDisabled?: boolean;
-  inlineView: boolean;
-}
-
 export default function CameraFeedControls({
   shortcutsDisabled,
-  ...props
-}: Props) {
+  inlineView,
+  onRelativeMoved,
+}: {
+  shortcutsDisabled?: boolean;
+  inlineView: boolean;
+  onRelativeMoved?: () => void;
+}) {
   const { setPlayerStatus, ptzPrecision, setPtzPrecision } = useCameraFeed();
 
   const resetStream = () => {
@@ -34,6 +34,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           helpText="Move Diagonally Up-Left"
           tooltipClassName="-translate-y-20"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="-rotate-45 size-3" />
         </RelativeMoveButton>
@@ -46,6 +47,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           tooltipClassName="-translate-y-20 -translate-x-11"
           helpText="Move Up"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="rotate-0 size-3" />
         </RelativeMoveButton>
@@ -55,6 +57,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           helpText="Move Diagonally Up-Right"
           tooltipClassName="-translate-y-20 -translate-x-24"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="rotate-45 size-3" />
         </RelativeMoveButton>
@@ -66,6 +69,7 @@ export default function CameraFeedControls({
           ]}
           shortcutsDisabled={shortcutsDisabled}
           helpText="Move Left"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="-rotate-90 size-3" />
         </RelativeMoveButton>
@@ -87,6 +91,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           helpText="Move Right"
           tooltipClassName="-translate-y-9 translate-x-11"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="rotate-90 size-3" />
         </RelativeMoveButton>
@@ -96,6 +101,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           tooltipClassName="-translate-y-20"
           helpText="Move Diagonally Down-Left"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="rotate-[-135deg] size-3" />
         </RelativeMoveButton>
@@ -108,6 +114,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           tooltipClassName="-translate-y-20  -translate-x-14"
           helpText="Move Down"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="rotate-180 size-3" />
         </RelativeMoveButton>
@@ -117,6 +124,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           tooltipClassName="-translate-y-9 translate-x-11"
           helpText="Move Diagonally Down-Right"
+          onRelativeMoved={onRelativeMoved}
         >
           <TriangleIcon className="rotate-[135deg] size-3" />
         </RelativeMoveButton>
@@ -130,6 +138,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           tooltipClassName="tooltip-left translate-y-2 translate-x-1"
           helpText="Zoom In"
+          onRelativeMoved={onRelativeMoved}
         >
           <ZoomInIcon className="size-3" />
         </RelativeMoveButton>
@@ -139,6 +148,7 @@ export default function CameraFeedControls({
           shortcutsDisabled={shortcutsDisabled}
           tooltipClassName="tooltip-left translate-y-2 translate-x-1"
           helpText="Zoom Out"
+          onRelativeMoved={onRelativeMoved}
         >
           <ZoomOutIcon className="size-3" />
         </RelativeMoveButton>
@@ -173,7 +183,7 @@ export default function CameraFeedControls({
     // ),
   };
 
-  if (props.inlineView) {
+  if (inlineView) {
     return (
       <div className="text-white opacity-0 transition-all delay-100 duration-200 ease-in-out group-hover:opacity-100 group-hover:delay-0">
         <div className="absolute bottom-4 left-4 transition-all delay-100 duration-200 ease-in-out group-hover:bottom-5 group-hover:delay-0">
@@ -245,6 +255,7 @@ export const RelativeMoveButton = ({
   shortcutsDisabled,
   helpText,
   tooltipClassName,
+  onRelativeMoved,
   children,
 }: {
   direction: number;
@@ -253,12 +264,15 @@ export const RelativeMoveButton = ({
   helpText: string;
   tooltipClassName?: string;
   children: React.ReactNode;
+  onRelativeMoved?: () => void;
 }) => {
   const { device, ptzPrecision } = useCameraFeed();
+
   const { mutate: relativeMove, isPending: isMoving } = useMutation({
     mutationFn: mutate(cameraActionApi.relativeMove, {
       pathParams: { cameraId: device.id },
     }),
+    onSuccess: () => onRelativeMoved?.(),
   });
 
   return (
