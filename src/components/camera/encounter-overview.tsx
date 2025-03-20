@@ -32,12 +32,12 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
   });
 
   const { data: positionPresets } = useQuery({
-    queryKey: ["camera-presets", activeCamera],
+    queryKey: ["camera-presets", activeCamera, encounter.current_location?.id],
     queryFn: query(cameraPositionPresetApi.list, {
       pathParams: { cameraId: activeCamera ?? "" },
-      queryParams: { limit: 100 },
+      queryParams: { location: encounter.current_location?.id, limit: 100 },
     }),
-    enabled: !!activeCamera,
+    enabled: !!activeCamera && !!encounter.current_location?.id,
   });
 
   const { mutate: absoluteMove, isPending: isMoving } = useMutation({
