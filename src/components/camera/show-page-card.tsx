@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, ExternalLink, Move } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Move, Pencil } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -142,6 +142,13 @@ const CameraPositionPresets = ({
     null
   );
 
+  // Add state for the preset being edited
+  const [presetToEdit, setPresetToEdit] = useState<PositionPreset | null>(null);
+  const [editPopoverOpen, setEditPopoverOpen] = useState(false);
+  const [editPresetName, setEditPresetName] = useState("");
+  const [editSelectedLocation, setEditSelectedLocation] =
+    useState<LocationList | null>(null);
+
   // Fetch presets - the API now returns location data directly
   const { data, isLoading } = useQuery({
     queryKey: ["camera-position-presets", device.id],
@@ -207,6 +214,30 @@ const CameraPositionPresets = ({
     },
   });
 
+  // Add mutation for updating preset
+  const updatePresetMutation = useMutation({
+    mutationFn: mutate(cameraPositionPresetApi.update, {
+      pathParams: { cameraId: device.id, presetId: presetToEdit?.id || "" },
+    }),
+    onSuccess: () => {
+      // Refresh the presets list after update
+      queryClient.invalidateQueries({
+        queryKey: ["camera-position-presets", device.id],
+      });
+
+      // Reset edit state
+      setPresetToEdit(null);
+      setEditPresetName("");
+      setEditSelectedLocation(null);
+      setEditPopoverOpen(false);
+
+      // Show success toast
+      // toast.success("Preset updated", {
+      //   description: `The preset "${presetToEdit?.name}" was successfully updated.`,
+      // });
+    },
+  });
+
   const handleDeletePreset = (preset: PositionPreset) => {
     setPresetToDelete(preset);
   };
@@ -220,6 +251,26 @@ const CameraPositionPresets = ({
   // Add handler for move action
   const handleMoveToPreset = (preset: PositionPreset) => {
     absoluteMoveMutation.mutate(preset.ptz);
+  };
+
+  // Add handler for edit action
+  const handleEditPreset = (preset: PositionPreset) => {
+    setPresetToEdit(preset);
+    setEditPresetName(preset.name);
+    setEditSelectedLocation(preset.location);
+    setEditPopoverOpen(true);
+  };
+
+  // Add handler for update preset
+  const handleUpdatePreset = () => {
+    if (!presetToEdit || !editPresetName.trim() || !editSelectedLocation)
+      return;
+
+    updatePresetMutation.mutate({
+      name: editPresetName.trim(),
+      ptz: presetToEdit.ptz, // Keep the same PTZ position
+      location: editSelectedLocation.id,
+    });
   };
 
   const handleCreatePreset = () => {
@@ -428,11 +479,95 @@ const CameraPositionPresets = ({
                               size="sm"
                               onClick={() => handleMoveToPreset(preset)}
                               disabled={absoluteMoveMutation.isPending}
-                              className="h-8 text-xs shrink-0 text-primary-600 hover:text-primary-700 hover:bg-primary-50 border-primary-200"
                             >
                               <Move className="h-3.5 w-3.5 mr-1.5" />
                               <span className="md:inline">Move</span>
                             </Button>
+                            <Popover
+                              open={
+                                editPopoverOpen &&
+                                presetToEdit?.id === preset.id
+                              }
+                              onOpenChange={(open) => {
+                                if (!open) {
+                                  setEditPopoverOpen(false);
+                                  setPresetToEdit(null);
+                                }
+                              }}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEditPreset(preset)}
+                                  disabled={updatePresetMutation.isPending}
+                                >
+                                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                                  <span className="md:inline">Modify</span>
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80 p-4">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    Modify preset
+                                  </h4>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="edit-preset-name">
+                                      Preset Name{" "}
+                                      <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                      id="edit-preset-name"
+                                      placeholder="Enter preset name"
+                                      value={editPresetName}
+                                      onChange={(e) =>
+                                        setEditPresetName(e.target.value)
+                                      }
+                                      className="h-8 text-sm"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="edit-location">
+                                      Location{" "}
+                                      <span className="text-red-500">*</span>
+                                    </Label>
+                                    <LocationSearch
+                                      facilityId={facilityId}
+                                      mode="instance"
+                                      onSelect={setEditSelectedLocation}
+                                      value={editSelectedLocation}
+                                      disabled={updatePresetMutation.isPending}
+                                    />
+                                  </div>
+                                  <div className="flex justify-end gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-8 text-xs"
+                                      onClick={() => {
+                                        setEditPopoverOpen(false);
+                                        setPresetToEdit(null);
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      variant="primary"
+                                      size="sm"
+                                      className="h-8 text-xs"
+                                      onClick={handleUpdatePreset}
+                                      disabled={
+                                        !editPresetName.trim() ||
+                                        !editSelectedLocation ||
+                                        updatePresetMutation.isPending
+                                      }
+                                    >
+                                      Update
+                                    </Button>
+                                  </div>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                             <Button
                               variant="outline"
                               size="sm"
