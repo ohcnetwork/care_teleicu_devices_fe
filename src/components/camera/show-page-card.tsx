@@ -38,7 +38,6 @@ import { useState } from "react";
 import { LocationSearch } from "@/components/shared/location-search";
 import { LocationList } from "@/lib/types/location";
 import useCameraStatus from "@/lib/camera/useCameraStatus";
-import { toast } from "sonner";
 import { stringifyNestedObject } from "@/lib/utils";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { Label } from "@/components/ui/label";
@@ -154,7 +153,7 @@ const CameraPositionPresets = ({
 
   const { data: cameraStatus } = useCameraStatus(device);
 
-  const createPresetMutation = useMutation({
+  const { mutate: createPreset, isPending: isCreatingPreset } = useMutation({
     mutationFn: mutate(cameraPositionPresetApi.create, {
       pathParams: { cameraId: device.id },
     }),
@@ -182,9 +181,9 @@ const CameraPositionPresets = ({
       });
 
       // Show success toast
-      toast.success("Preset deleted", {
-        description: `The preset "${presetToDelete?.name}" was successfully deleted.`,
-      });
+      // toast.success("Preset deleted", {
+      //   description: `The preset "${presetToDelete?.name}" was successfully deleted.`,
+      // });
 
       setPresetToDelete(null);
     },
@@ -202,9 +201,9 @@ const CameraPositionPresets = ({
       });
 
       // Show success toast
-      toast.success("Camera moved", {
-        description: "Camera has been moved to the selected preset position.",
-      });
+      // toast.success("Camera moved", {
+      //   description: "Camera has been moved to the selected preset position.",
+      // });
     },
   });
 
@@ -226,7 +225,7 @@ const CameraPositionPresets = ({
   const handleCreatePreset = () => {
     if (!presetName.trim() || !cameraStatus) return;
 
-    createPresetMutation.mutate({
+    createPreset({
       name: presetName.trim(),
       ptz: cameraStatus.position,
       location: selectedLocation?.id,
@@ -305,7 +304,7 @@ const CameraPositionPresets = ({
                   mode="instance"
                   onSelect={setSelectedLocation}
                   value={selectedLocation}
-                  disabled={createPresetMutation.isPending}
+                  disabled={isCreatingPreset}
                 />
               </div>
               <div className="flex justify-end gap-2">
@@ -325,7 +324,7 @@ const CameraPositionPresets = ({
                   disabled={
                     !presetName.trim() ||
                     !selectedLocation ||
-                    createPresetMutation.isPending ||
+                    isCreatingPreset ||
                     !cameraStatus
                   }
                 >
