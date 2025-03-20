@@ -34,7 +34,7 @@ export function LocationSearch({
     queryKey: ["locations", facilityId, mode, search],
     queryFn: query(careApi.listLocations, {
       pathParams: { facilityId },
-      queryParams: { mode, name: search, form, available: "true" },
+      queryParams: { mode, name: search, form },
     }),
     enabled: facilityId !== "preview",
     select: (data: PaginatedResponse<LocationList>) => data.results,

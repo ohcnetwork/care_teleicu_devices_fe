@@ -10,5 +10,5 @@ export interface Encounter {
     id: string;
     name: string;
   };
-  current_location: LocationList;
+  current_location?: LocationList;
 }

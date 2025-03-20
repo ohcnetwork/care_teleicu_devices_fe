@@ -1,4 +1,6 @@
-import cameraActionApi from "@/lib/camera/cameraActionApi";
+import cameraActionApi, {
+  GetStatusResponse,
+} from "@/lib/camera/cameraActionApi";
 import { CameraDevice } from "@/lib/camera/types";
 import { query } from "@/lib/request";
 import { useQuery } from "@tanstack/react-query";
@@ -7,11 +9,16 @@ export default function useCameraStatus(
   device: CameraDevice,
   refetchInterval: number | false = 1000
 ) {
-  return useQuery({
+  return useQuery<GetStatusResponse>({
     queryKey: ["camera-status", device.id],
     queryFn: query(cameraActionApi.getStatus, {
       pathParams: { cameraId: device.id },
+      silent: true,
     }),
-    refetchInterval: refetchInterval,
+    refetchInterval: (query) => {
+      // Only refetch if there's no error and refetchInterval is not false
+      return query.state.error ? false : refetchInterval;
+    },
+    retry: false,
   });
 }
