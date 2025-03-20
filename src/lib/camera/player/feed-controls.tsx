@@ -155,17 +155,17 @@ export default function CameraFeedControls({
       </>
     ),
 
-    reset: (
-      <FeedButton
-        onTrigger={resetStream}
-        shortcuts={[["Shift", "R"]]}
-        shortcutsDisabled={shortcutsDisabled}
-        tooltipClassName="tooltip-left translate-y-2 translate-x-1"
-        helpText="Reset"
-      >
-        <ResetIcon className="size-3" />
-      </FeedButton>
-    ),
+    // reset: (
+    //   <FeedButton
+    //     onTrigger={resetStream}
+    //     shortcuts={[["Shift", "R"]]}
+    //     shortcutsDisabled={shortcutsDisabled}
+    //     tooltipClassName="tooltip-left translate-y-2 translate-x-1"
+    //     helpText="Reset"
+    //   >
+    //     <ResetIcon className="size-3" />
+    //   </FeedButton>
+    // ),
     // fullscreen: (
     //   <FeedButton
     //     onTrigger={() => props.setFullscreen(!props.isFullscreen)}
@@ -192,7 +192,7 @@ export default function CameraFeedControls({
         <div className="absolute bottom-4 right-4 transition-all delay-100 duration-200 ease-in-out group-hover:right-8 group-hover:delay-0">
           <div className="flex flex-col items-center justify-center gap-1">
             {controls.zoom}
-            {controls.reset}
+            {/* {controls.reset} */}
             {/* {controls.fullscreen} */}
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function CameraFeedControls({
       <div className="flex flex-col gap-2">{controls.zoom}</div>
       <div className="grid grid-cols-3 gap-2">{controls.position}</div>
       <div className="flex flex-col gap-2">
-        {controls.reset}
+        {/* {controls.reset} */}
         {/* {controls.fullscreen} */}
       </div>
     </div>
