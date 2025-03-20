@@ -4,7 +4,6 @@ import FeedButton from "@/lib/camera/player/feed-button";
 import { mutate } from "@/lib/request";
 import { cn } from "@/lib/utils";
 import { isAppleDevice } from "@/utils";
-import { ResetIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, TriangleIcon, ZoomInIcon, ZoomOutIcon } from "lucide-react";
 
@@ -19,11 +18,11 @@ export default function CameraFeedControls({
   inlineView: boolean;
   onRelativeMoved?: () => void;
 }) {
-  const { setPlayerStatus, ptzPrecision, setPtzPrecision } = useCameraFeed();
+  const { ptzPrecision, setPtzPrecision } = useCameraFeed();
 
-  const resetStream = () => {
-    setPlayerStatus("loading");
-  };
+  // const resetStream = () => {
+  //   setPlayerStatus("loading");
+  // };
 
   const controls = {
     position: (
