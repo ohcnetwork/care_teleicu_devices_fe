@@ -41,6 +41,7 @@ import useCameraStatus from "@/lib/camera/useCameraStatus";
 import { toast } from "sonner";
 import { stringifyNestedObject } from "@/lib/utils";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
+import { Label } from "@/components/ui/label";
 
 export const CameraShowPageCard = ({
   device,
@@ -224,24 +225,13 @@ const CameraPositionPresets = ({
 
   // Group presets by location
   type GroupedPresets = {
-    locationId: string | null;
-    locationName: string | null;
+    locationId: string;
+    locationName: string;
     presets: PositionPreset[];
   };
 
   const groupedPresets: GroupedPresets[] = [];
 
-  // Add "No Location" group first
-  const noLocationPresets = data.results.filter((preset) => !preset.location);
-  if (noLocationPresets.length > 0) {
-    groupedPresets.push({
-      locationId: null,
-      locationName: null,
-      presets: noLocationPresets,
-    });
-  }
-
-  // Group presets with locations
   const presetsWithLocation = data.results.filter((preset) => preset.location);
   const locationMap = new Map<string, GroupedPresets>();
 
@@ -281,9 +271,9 @@ const CameraPositionPresets = ({
                 Save current position as a preset
               </h4>
               <div className="space-y-2">
-                <label htmlFor="preset-name" className="text-xs text-gray-500">
+                <Label htmlFor="preset-name">
                   Preset Name <span className="text-red-500">*</span>
-                </label>
+                </Label>
                 <Input
                   id="preset-name"
                   placeholder="Enter preset name"
@@ -293,9 +283,9 @@ const CameraPositionPresets = ({
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="location" className="text-xs text-gray-500">
-                  Location (Optional)
-                </label>
+                <Label htmlFor="location">
+                  Location <span className="text-red-500">*</span>
+                </Label>
                 <LocationSearch
                   facilityId={facilityId}
                   mode="instance"
@@ -320,6 +310,7 @@ const CameraPositionPresets = ({
                   onClick={handleCreatePreset}
                   disabled={
                     !presetName.trim() ||
+                    !selectedLocation ||
                     createPresetMutation.isPending ||
                     !cameraStatus
                   }
@@ -338,37 +329,24 @@ const CameraPositionPresets = ({
         </div>
       ) : (
         <div className="space-y-8">
-          {groupedPresets.map((group, groupIndex) => (
+          {groupedPresets.map((group) => (
             <div key={group.locationId ?? "no-location"} className="space-y-3">
               {/* Location Group Header */}
               <div className="flex items-center border-b pb-2">
-                {group.locationName ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
-                    <Link
-                      href={`/facility/${facilityId}/settings/location/${group.locationId}`}
-                      className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline"
-                    >
-                      {group.locationName}
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
-                    <span className="text-xs text-gray-500 ml-2">
-                      ({group.presets.length}{" "}
-                      {group.presets.length === 1 ? "preset" : "presets"})
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                    <span className="text-sm font-medium text-gray-600">
-                      No Location Specified
-                    </span>
-                    <span className="text-xs text-gray-500 ml-2">
-                      ({group.presets.length}{" "}
-                      {group.presets.length === 1 ? "preset" : "presets"})
-                    </span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                  <Link
+                    href={`/facility/${facilityId}/settings/location/${group.locationId}`}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline"
+                  >
+                    {group.locationName}
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({group.presets.length}{" "}
+                    {group.presets.length === 1 ? "preset" : "presets"})
+                  </span>
+                </div>
               </div>
 
               {/* Presets Table */}
