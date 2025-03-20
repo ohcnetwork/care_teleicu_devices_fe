@@ -25,9 +25,13 @@ export const CameraDeviceConfigureForm = ({
     (typeof metadata.gateway === "object" && metadata.gateway?.id) ||
     metadata.gateway;
 
+  const handleChange = (key: string, value: any) => {
+    onChange({ ...metadata, gateway: gatewayId, [key]: value });
+  };
+
   useEffect(() => {
     if (gatewayId) {
-      onChange({ ...metadata, gateway: gatewayId });
+      handleChange("gateway", gatewayId);
     }
   }, [gatewayId]);
 
@@ -43,7 +47,7 @@ export const CameraDeviceConfigureForm = ({
         </Label>
         <Select
           value={metadata.type || ""}
-          onValueChange={(value) => onChange({ ...metadata, type: value })}
+          onValueChange={(value) => handleChange("type", value)}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select device type..." />
@@ -61,9 +65,7 @@ export const CameraDeviceConfigureForm = ({
         </Label>
         <Select
           value={gatewayId}
-          onValueChange={(value) =>
-            onChange({ ...metadata, gateway: value === "none" ? null : value })
-          }
+          onValueChange={(value) => handleChange("gateway", value)}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select gateway device...">
@@ -115,58 +117,47 @@ export const CameraDeviceConfigureForm = ({
           type="text"
           placeholder="Camera's endpoint address (e.g., 192.168.1.100)"
           value={metadata.endpoint_address || ""}
-          onChange={(e) => {
-            onChange({
-              ...metadata,
-              endpoint_address: e.target.value,
-            });
-          }}
+          onChange={(e) => handleChange("endpoint_address", e.target.value)}
         />
       </div>
 
       <div>
-        <Label className="mb-2">Username</Label>
+        <Label className="mb-2">
+          Username
+          <span className="text-red-500">*</span>
+        </Label>
         <Input
           placeholder="Camera username"
           autoComplete="off"
           value={metadata.username || ""}
-          onChange={(e) => {
-            onChange({
-              ...metadata,
-              username: e.target.value,
-            });
-          }}
+          onChange={(e) => handleChange("username", e.target.value)}
         />
       </div>
 
       <div>
-        <Label className="mb-2">Password</Label>
+        <Label className="mb-2">
+          Password
+          <span className="text-red-500">*</span>
+        </Label>
         <Input
           type="password"
           autoComplete="off"
           placeholder="Camera password"
           value={metadata.password || ""}
-          onChange={(e) => {
-            onChange({
-              ...metadata,
-              password: e.target.value,
-            });
-          }}
+          onChange={(e) => handleChange("password", e.target.value)}
         />
       </div>
 
       <div>
-        <Label className="mb-2">Stream ID</Label>
+        <Label className="mb-2">
+          Stream ID
+          <span className="text-red-500">*</span>
+        </Label>
         <Input
           placeholder="Camera stream ID"
           autoComplete="off"
           value={metadata.stream_id || ""}
-          onChange={(e) => {
-            onChange({
-              ...metadata,
-              stream_id: e.target.value,
-            });
-          }}
+          onChange={(e) => handleChange("stream_id", e.target.value)}
         />
       </div>
     </div>
