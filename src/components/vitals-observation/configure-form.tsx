@@ -25,9 +25,13 @@ export const VitalsObservationConfigureForm = ({
     (typeof metadata.gateway === "object" && metadata.gateway?.id) ||
     metadata.gateway;
 
+  const handleChange = (key: string, value: any) => {
+    onChange({ ...metadata, gateway: gatewayId, [key]: value });
+  };
+
   useEffect(() => {
     if (gatewayId) {
-      onChange({ ...metadata, gateway: gatewayId });
+      handleChange("gateway", gatewayId);
     }
   }, [gatewayId]);
 
@@ -43,7 +47,7 @@ export const VitalsObservationConfigureForm = ({
         </Label>
         <Select
           value={metadata.type || ""}
-          onValueChange={(value) => onChange({ ...metadata, type: value })}
+          onValueChange={(value) => handleChange("type", value)}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select device type..." />
@@ -62,9 +66,7 @@ export const VitalsObservationConfigureForm = ({
         </Label>
         <Select
           value={gatewayId}
-          onValueChange={(value) =>
-            onChange({ ...metadata, gateway: value === "none" ? null : value })
-          }
+          onValueChange={(value) => handleChange("gateway", value)}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select gateway device...">
@@ -85,23 +87,20 @@ export const VitalsObservationConfigureForm = ({
                 No gateway devices found
               </div>
             ) : (
-              <>
-                <SelectItem value="none">None</SelectItem>
-                {gatewayDevices.map((device) => (
-                  <SelectItem key={device.id} value={device.id}>
-                    <p className="text-sm">
-                      {device.registered_name || device.user_friendly_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Endpoint Address:{" "}
-                      <span className="font-medium">
-                        {(device.care_metadata.endpoint_address as string) ||
-                          "--"}
-                      </span>
-                    </p>
-                  </SelectItem>
-                ))}
-              </>
+              gatewayDevices.map((device) => (
+                <SelectItem key={device.id} value={device.id}>
+                  <p className="text-sm">
+                    {device.registered_name || device.user_friendly_name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Endpoint Address:{" "}
+                    <span className="font-medium">
+                      {(device.care_metadata.endpoint_address as string) ||
+                        "--"}
+                    </span>
+                  </p>
+                </SelectItem>
+              ))
             )}
           </SelectContent>
         </Select>
@@ -116,12 +115,7 @@ export const VitalsObservationConfigureForm = ({
           type="text"
           placeholder="Vitals Observation Device's endpoint address (e.g., 192.168.1.100)"
           value={metadata.endpoint_address || ""}
-          onChange={(e) => {
-            onChange({
-              ...metadata,
-              endpoint_address: e.target.value,
-            });
-          }}
+          onChange={(e) => handleChange("endpoint_address", e.target.value)}
         />
       </div>
     </div>

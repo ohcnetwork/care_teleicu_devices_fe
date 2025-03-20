@@ -64,7 +64,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
   }
 
   if (isLoading || !cameras) {
-    return <Skeleton className="h-24 md:h-48 w-full" />;
+    return null;
   }
 
   if (cameras.results.length === 0) {

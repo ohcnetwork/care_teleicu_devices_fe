@@ -86,23 +86,20 @@ export const CameraDeviceConfigureForm = ({
                 No gateway devices found
               </div>
             ) : (
-              <>
-                <SelectItem value="none">None</SelectItem>
-                {gatewayDevices.map((device) => (
-                  <SelectItem key={device.id} value={device.id}>
-                    <p className="text-sm">
-                      {device.registered_name || device.user_friendly_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Endpoint Address:{" "}
-                      <span className="font-medium">
-                        {(device.care_metadata.endpoint_address as string) ||
-                          "--"}
-                      </span>
-                    </p>
-                  </SelectItem>
-                ))}
-              </>
+              gatewayDevices.map((device) => (
+                <SelectItem key={device.id} value={device.id}>
+                  <p className="text-sm">
+                    {device.registered_name || device.user_friendly_name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Endpoint Address:{" "}
+                    <span className="font-medium">
+                      {(device.care_metadata.endpoint_address as string) ||
+                        "--"}
+                    </span>
+                  </p>
+                </SelectItem>
+              ))
             )}
           </SelectContent>
         </Select>
