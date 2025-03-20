@@ -9,7 +9,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ConfigureFormProps } from "@/lib/types/common";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const CameraDeviceConfigureForm = ({
   facilityId,
@@ -20,6 +22,8 @@ export const CameraDeviceConfigureForm = ({
     facilityId,
     careType: "gateway",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const gatewayId =
     (typeof metadata.gateway === "object" && metadata.gateway?.id) ||
@@ -136,13 +140,31 @@ export const CameraDeviceConfigureForm = ({
           Password
           <span className="text-red-500">*</span>
         </Label>
-        <Input
-          type="password"
-          autoComplete="off"
-          placeholder="Camera password"
-          value={metadata.password || ""}
-          onChange={(e) => handleChange("password", e.target.value)}
-        />
+        <div className="relative">
+          <Input
+            type={showPassword ? "text" : "password"}
+            autoComplete="off"
+            placeholder="Camera password"
+            value={metadata.password || ""}
+            onChange={(e) => handleChange("password", e.target.value)}
+            className="pr-10"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400 hover:text-gray-600"
+            onClick={() => setShowPassword(!showPassword)}
+            tabIndex={-1}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
 
       <div>
