@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ConfigureFormProps } from "@/lib/types/common";
+import { useEffect } from "react";
 
 export const VitalsObservationConfigureForm = ({
   facilityId,
@@ -23,6 +24,12 @@ export const VitalsObservationConfigureForm = ({
   const gatewayId =
     (typeof metadata.gateway === "object" && metadata.gateway?.id) ||
     metadata.gateway;
+
+  useEffect(() => {
+    if (gatewayId) {
+      onChange({ ...metadata, gateway: gatewayId });
+    }
+  }, [gatewayId]);
 
   const gatewayDevices = data?.results ?? [];
   const gateway = gatewayDevices.find((device) => device.id === gatewayId);
