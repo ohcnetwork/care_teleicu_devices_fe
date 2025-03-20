@@ -37,7 +37,10 @@ export const VitalsObservationConfigureForm = ({
   return (
     <div className="space-y-4">
       <div>
-        <Label className="mb-2">Type</Label>
+        <Label className="mb-2">
+          Type
+          <span className="text-red-500">*</span>
+        </Label>
         <Select
           value={metadata.type || ""}
           onValueChange={(value) => onChange({ ...metadata, type: value })}
@@ -53,7 +56,10 @@ export const VitalsObservationConfigureForm = ({
       </div>
 
       <div>
-        <Label className="mb-2">Gateway Device</Label>
+        <Label className="mb-2">
+          Gateway Device
+          <span className="text-red-500">*</span>
+        </Label>
         <Select
           value={gatewayId}
           onValueChange={(value) =>
@@ -102,7 +108,10 @@ export const VitalsObservationConfigureForm = ({
       </div>
 
       <div>
-        <Label className="mb-2">Endpoint Address</Label>
+        <Label className="mb-2">
+          Endpoint Address
+          <span className="text-red-500">*</span>
+        </Label>
         <Input
           type="text"
           placeholder="Vitals Observation Device's endpoint address (e.g., 192.168.1.100)"

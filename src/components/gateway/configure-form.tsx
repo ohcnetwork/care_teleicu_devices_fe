@@ -407,7 +407,10 @@ export const GatewayDeviceConfigureForm = ({
   return (
     <div className="space-y-4">
       <div>
-        <Label className="mb-2">Gateway's Endpoint Address</Label>
+        <Label className="mb-2">
+          Gateway's Endpoint Address
+          <span className="text-red-500">*</span>
+        </Label>
         <div className="flex items-center gap-2">
           <Input
             autoComplete=""
