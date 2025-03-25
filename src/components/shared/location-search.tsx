@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import {
   LocationForm,
   LocationList,
@@ -7,9 +5,14 @@ import {
   LocationTypeIcons,
 } from "@/lib/types/location";
 import { PaginatedResponse, query } from "@/lib/request";
+
+import { Autocomplete } from "@/components/ui/autocomplete";
+import { I18NNAMESPACE } from "@/lib/constants";
 import careApi from "@/lib/careApi";
 import { stringifyNestedObject } from "@/lib/utils";
-import { Autocomplete } from "@/components/ui/autocomplete";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface LocationSearchProps {
   facilityId: string;
@@ -28,6 +31,8 @@ export function LocationSearch({
   disabled,
   value,
 }: LocationSearchProps) {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   const [search, setSearch] = useState("");
 
   const { data: locations, isLoading } = useQuery({
@@ -78,9 +83,9 @@ export function LocationSearch({
       onSearch={setSearch}
       isLoading={isLoading}
       disabled={disabled}
-      placeholder="Select location..."
-      searchPlaceholder="Search locations..."
-      noResultsText="No locations found"
+      placeholder={t("select_location") + "..."}
+      searchPlaceholder={t("search_locations") + "..."}
+      noResultsText={t("no_locations")}
       renderOption={renderLocationOption}
       renderValue={renderLocationValue}
     />

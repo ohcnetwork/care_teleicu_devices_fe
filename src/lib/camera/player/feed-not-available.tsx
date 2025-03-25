@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { I18NNAMESPACE } from "@/lib/constants";
 import { RedoIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function FeedNotAvailable({
   message,
@@ -14,6 +16,8 @@ export default function FeedNotAvailable({
   streamUrl?: string;
   onResetClick: () => void;
 }) {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   if (process.env.NODE_ENV === "development") {
     streamUrl = streamUrl
       ?.replace(
@@ -38,7 +42,7 @@ export default function FeedNotAvailable({
       <div className="mt-4 flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={onResetClick}>
           <RedoIcon />
-          Retry
+          {t("retry")}
         </Button>
       </div>
     </div>
