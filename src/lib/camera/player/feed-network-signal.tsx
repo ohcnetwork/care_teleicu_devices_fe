@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
+
+import { I18NNAMESPACE } from "@/lib/constants";
 import NetworkSignal from "@/lib/camera/components/network-signal";
 import { calculateVideoDelay } from "@/lib/camera/utils";
-import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type StreamStatus = "loading" | "playing" | "stopped";
 
@@ -12,6 +15,8 @@ interface Props {
 }
 
 export default function FeedNetworkSignal(props: Props) {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   const [videoDelay, setVideoDelay] = useState<number>();
   useEffect(() => {
     const interval = setInterval(() => {
@@ -41,7 +46,7 @@ export default function FeedNetworkSignal(props: Props) {
         {videoDelay ? (
           `${(videoDelay * 1e3) | 1} ms`
         ) : (
-          <span className="font-normal text-white/50">No signal</span>
+          <span className="font-normal text-white/50">{t("no_signal")}</span>
         )}
       </span>
     </NetworkSignal>

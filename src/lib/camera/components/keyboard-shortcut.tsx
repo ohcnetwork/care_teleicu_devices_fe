@@ -1,7 +1,9 @@
+import { Fragment } from "react/jsx-runtime";
+import { I18NNAMESPACE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { isAppleDevice } from "@/utils";
-import { Fragment } from "react/jsx-runtime";
 import useKeyboardShortcut from "use-keyboard-shortcut";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   children?: React.ReactNode;
@@ -13,6 +15,8 @@ interface Props {
 }
 
 export default function KeyboardShortcut(props: Props) {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   useKeyboardShortcut(props.shortcut, props.onTrigger);
 
   if (!props.children) {
@@ -51,7 +55,7 @@ export default function KeyboardShortcut(props: Props) {
                 key={`shortcut-separator-${idx}`}
                 className="text-zinc-300/60"
               >
-                or
+                {t("or")}
               </span>
             )}
           </>

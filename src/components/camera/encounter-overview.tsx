@@ -1,23 +1,27 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { mutate, query } from "@/lib/request";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
 import { Autocomplete } from "@/components/ui/autocomplete";
+import CameraFeedControls from "@/lib/camera/player/feed-controls";
+import CameraFeedPlayer from "@/lib/camera/player/feed-player";
 import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
+import { Encounter } from "@/lib/types/encounter";
+import { I18NNAMESPACE } from "@/lib/constants";
+import { PositionPreset } from "@/lib/camera/types";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import camerasOfPresetLocationApi from "@/lib/camera/camerasOfPresetLocationApi";
-import CameraFeedControls from "@/lib/camera/player/feed-controls";
-import CameraFeedPlayer from "@/lib/camera/player/feed-player";
-import { PositionPreset } from "@/lib/camera/types";
-import { query, mutate } from "@/lib/request";
-import { Encounter } from "@/lib/types/encounter";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   encounter: Encounter;
 }
 
 export const CameraEncounterOverview = ({ encounter }: Props) => {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   const [activeCamera, setActiveCamera] = useState<string>();
   const [selectedPreset, setSelectedPreset] = useState<PositionPreset>();
 
@@ -90,14 +94,14 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
               options={positionPresets?.results || []}
               value={selectedPreset}
               onSelect={setSelectedPreset}
-              placeholder="Select position preset..."
-              searchPlaceholder="Search presets..."
-              noResultsText="No position presets found"
+              placeholder={t("select_position_preset") + "..."}
+              searchPlaceholder={t("search_presets") + "..."}
+              noResultsText={t("no_position_presets")}
               renderOption={({ name }) => (
                 <span className="font-medium">{name}</span>
               )}
               renderValue={(preset) =>
-                preset?.name || "Select position preset..."
+                preset?.name || t("select_position_preset") + "..."
               }
               isLoading={!positionPresets}
               className="w-full"

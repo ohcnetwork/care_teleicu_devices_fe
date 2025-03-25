@@ -1,18 +1,23 @@
-import { cn } from "@/lib/utils";
 import {
   NonWaveformContentGroup,
   NonWaveformData,
   WaveformLabels,
 } from "@/lib/vitals-observation/helper-components";
-import useVitalsObservation from "@/lib/vitals-observation/hl7-monitor/useVitalsObservation";
+
+import { I18NNAMESPACE } from "@/lib/constants";
 import { WifiOffIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import useVitalsObservation from "@/lib/vitals-observation/hl7-monitor/useVitalsObservation";
 
 interface Props {
   socketUrl: string;
 }
 
 const VitalsObservationMonitor = ({ socketUrl }: Props) => {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   const { connect, waveformCanvas, data, isOnline } = useVitalsObservation();
 
   useEffect(() => {
@@ -39,7 +44,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
         />
         <div className="flex flex-col items-center justify-center gap-1 p-1 text-center font-medium relative z-10 my-24 text-warning-400">
           <WifiOffIcon className="mb-2 animate-pulse text-4xl" />
-          <span>No incoming data from the Vitals Observation Device</span>
+          <span>{t("no_data_from_vitals_device")}</span>
         </div>
       </div>
       <div
@@ -52,7 +57,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
           <NonWaveformContentGroup>
             {/* Pulse Rate */}
             <NonWaveformData
-              label="ECG"
+              label={t("ecg")}
               attr={data.pulseRate?.value ? data.pulseRate : data.heartRate}
               className="text-green-400"
               suffix={
@@ -63,7 +68,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
             {/* Blood Pressure */}
             <div className="flex flex-col p-1">
               <div className="flex w-full justify-between gap-2 font-bold text-orange-500">
-                <span className="text-sm">NIBP</span>
+                <span className="text-sm">{t("nibp")}</span>
                 <span className="text-xs">
                   {data.bp?.systolic.unit ?? "--"}
                 </span>
@@ -72,7 +77,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
                 </span>
               </div>
               <div className="flex w-full justify-center text-sm font-medium text-orange-500">
-                Sys / Dia
+                {t("sys_dia")}
               </div>
               <div className="flex w-full justify-center text-2xl font-black text-orange-300 md:text-4xl">
                 <span>{data.bp?.systolic.value ?? "--"}</span>
@@ -81,7 +86,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
               </div>
               <div className="flex items-end">
                 <span className="flex-1 text-sm font-bold text-orange-500">
-                  Mean
+                  {t("mean")}
                 </span>
                 <span className="flex-1 text-xl font-bold text-secondary-300">
                   {data.bp?.map.value ?? "--"}
@@ -91,14 +96,14 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
 
             {/* SpO2 */}
             <NonWaveformData
-              label="SpO2"
+              label={t("spo2")}
               attr={data.spo2}
               className="text-yellow-300"
             />
 
             {/* Respiratory Rate */}
             <NonWaveformData
-              label="RESP"
+              label={t("resp")}
               attr={data.respiratoryRate}
               className="text-sky-300"
             />
@@ -106,26 +111,26 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
             {/* Temperature */}
             <div className="col-span-2 flex flex-col p-1 md:col-span-1">
               <div className="flex w-full gap-2 font-bold text-fuchsia-400">
-                <span className="text-sm">TEMP</span>
+                <span className="text-sm">{t("temp")}</span>
                 <span className="text-xs">
                   {data.temperature1?.unit?.replace("deg ", "°") ?? "--"}
                 </span>
               </div>
               <div className="flex w-full justify-between gap-3 text-fuchsia-400">
                 <div className="flex flex-col justify-start gap-1">
-                  <span className="text-xs font-bold">T1</span>
+                  <span className="text-xs font-bold">{t("t1")}</span>
                   <span className="text-lg font-black md:text-2xl">
                     {data.temperature1?.value ?? "--"}
                   </span>
                 </div>
                 <div className="flex flex-col justify-start gap-1">
-                  <span className="text-xs font-bold">T2</span>
+                  <span className="text-xs font-bold">{t("t2")}</span>
                   <span className="text-lg font-black md:text-2xl">
                     {data.temperature2?.value ?? "--"}
                   </span>
                 </div>
                 <div className="flex flex-col justify-start gap-1">
-                  <span className="text-xs font-bold">TD</span>
+                  <span className="text-xs font-bold">{t("td")}</span>
                   <span className="text-lg font-black md:text-2xl">
                     {data.temperature1?.value && data.temperature2?.value
                       ? Math.abs(

@@ -1,23 +1,3 @@
-import { TableSkeleton } from "@/components/shared/skeleton-loading";
-import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
-import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
-import CameraFeedControls from "@/lib/camera/player/feed-controls";
-import CameraFeedPlayer from "@/lib/camera/player/feed-player";
-import { CameraDevice, PositionPreset } from "@/lib/camera/types";
-import { query, mutate } from "@/lib/request";
-import { Link } from "raviger";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, ExternalLink, Move, Pencil } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,20 +8,43 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { CameraDevice, PositionPreset } from "@/lib/camera/types";
+import { ExternalLink, Move, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { LocationSearch } from "@/components/shared/location-search";
-import { LocationList } from "@/lib/types/location";
-import useCameraStatus from "@/lib/camera/useCameraStatus";
-import { stringifyNestedObject } from "@/lib/utils";
-import cameraActionApi from "@/lib/camera/cameraActionApi";
-import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { mutate, query } from "@/lib/request";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { AlertTriangle } from "lucide-react";
+import CameraFeedControls from "@/lib/camera/player/feed-controls";
+import CameraFeedPlayer from "@/lib/camera/player/feed-player";
+import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
+import { I18NNAMESPACE } from "@/lib/constants";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Link } from "raviger";
+import { LocationList } from "@/lib/types/location";
+import { LocationSearch } from "@/components/shared/location-search";
+import { TableSkeleton } from "@/components/shared/skeleton-loading";
+import cameraActionApi from "@/lib/camera/cameraActionApi";
+import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
+import { stringifyNestedObject } from "@/lib/utils";
+import useCameraStatus from "@/lib/camera/useCameraStatus";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const CameraShowPageCard = ({
   device,
@@ -59,6 +62,8 @@ export const CameraShowPageCard = ({
 };
 
 const CameraStream = ({ device }: { device: CameraDevice }) => {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   const { data: status, isError, refetch } = useCameraStatus(device, 500);
   return (
     <CameraFeedProvider device={device}>
@@ -113,11 +118,10 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
           <AlertTriangle className="h-4 w-4 text-amber-500" />
           <span className="font-medium text-amber-700">Warning:</span>
           <span className="text-amber-700 flex-1">
-            Unable to communicate with the camera device. The camera credentials
-            may be incorrect.
+            {t("camera_feed_error")}
           </span>
           <Button variant="warning" size="sm" onClick={() => refetch()}>
-            Retry
+            {t("retry")}
           </Button>
         </div>
       )}
@@ -132,6 +136,8 @@ const CameraPositionPresets = ({
   device: CameraDevice;
   facilityId: string;
 }) => {
+  const { t } = useTranslation(I18NNAMESPACE);
+
   const queryClient = useQueryClient();
   const [presetToDelete, setPresetToDelete] = useState<PositionPreset | null>(
     null
@@ -326,21 +332,21 @@ const CameraPositionPresets = ({
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 gap-1 text-xs">
               <Plus className="h-3.5 w-3.5" />
-              Create Preset
+              {t("create_preset")}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-4">
             <div className="space-y-4">
               <h4 className="font-medium text-sm">
-                Save current position as a preset
+                {t("save_current_position_as_preset")}
               </h4>
               <div className="space-y-2">
                 <Label htmlFor="preset-name">
-                  Preset Name <span className="text-red-500">*</span>
+                  {t("preset_name")} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="preset-name"
-                  placeholder="Enter preset name"
+                  placeholder={t("preset_name_placeholder")}
                   value={presetName}
                   onChange={(e) => setPresetName(e.target.value)}
                   className="h-8 text-sm"
@@ -348,7 +354,7 @@ const CameraPositionPresets = ({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="location">
-                  Location <span className="text-red-500">*</span>
+                  {t("location")} <span className="text-red-500">*</span>
                 </Label>
                 <LocationSearch
                   facilityId={facilityId}
@@ -365,7 +371,7 @@ const CameraPositionPresets = ({
                   className="h-8 text-xs"
                   onClick={() => setPopoverOpen(false)}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button
                   variant="primary"
@@ -379,7 +385,7 @@ const CameraPositionPresets = ({
                     !cameraStatus
                   }
                 >
-                  Save
+                  {t("save")}
                 </Button>
               </div>
             </div>
@@ -389,7 +395,7 @@ const CameraPositionPresets = ({
 
       {data?.results.length === 0 ? (
         <div className="bg-gray-50 rounded-md p-6 text-center text-gray-500">
-          No position presets found for this camera
+          {t("no_position_presets_for_camera")}
         </div>
       ) : (
         <div className="space-y-8">
@@ -419,13 +425,13 @@ const CameraPositionPresets = ({
                   <TableHeader>
                     <TableRow className="bg-gray-100 border-b border-gray-200">
                       <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700">
-                        Name
+                        {t("name")}
                       </TableHead>
                       <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 hidden md:table-cell">
-                        Position
+                        {t("position")}
                       </TableHead>
                       <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 text-right">
-                        Actions
+                        {t("actions")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -448,7 +454,7 @@ const CameraPositionPresets = ({
                           <div className="flex items-center space-x-3">
                             <div className="flex items-center space-x-1">
                               <span className="text-xs font-medium text-gray-500">
-                                X:
+                                {t("position_x")}:
                               </span>
                               <span className="text-xs text-gray-700">
                                 {preset.ptz.x.toFixed(1)}
@@ -456,7 +462,7 @@ const CameraPositionPresets = ({
                             </div>
                             <div className="flex items-center space-x-1">
                               <span className="text-xs font-medium text-gray-500">
-                                Y:
+                                {t("position_y")}:
                               </span>
                               <span className="text-xs text-gray-700">
                                 {preset.ptz.y.toFixed(1)}
@@ -464,7 +470,7 @@ const CameraPositionPresets = ({
                             </div>
                             <div className="flex items-center space-x-1">
                               <span className="text-xs font-medium text-gray-500">
-                                Zoom:
+                                {t("zoom")}:
                               </span>
                               <span className="text-xs text-gray-700">
                                 {preset.ptz.zoom.toFixed(1)}
@@ -481,7 +487,7 @@ const CameraPositionPresets = ({
                               disabled={absoluteMoveMutation.isPending}
                             >
                               <Move className="h-3.5 w-3.5 mr-1.5" />
-                              <span className="md:inline">Move</span>
+                              <span className="md:inline">{t("move")}</span>
                             </Button>
                             <Popover
                               open={
@@ -503,22 +509,24 @@ const CameraPositionPresets = ({
                                   disabled={updatePresetMutation.isPending}
                                 >
                                   <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                                  <span className="md:inline">Modify</span>
+                                  <span className="md:inline">
+                                    {t("modify")}
+                                  </span>
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-80 p-4">
                                 <div className="space-y-4">
                                   <h4 className="font-medium text-sm">
-                                    Modify preset
+                                    {t("modify_preset")}
                                   </h4>
                                   <div className="space-y-2">
                                     <Label htmlFor="edit-preset-name">
-                                      Preset Name{" "}
+                                      {t("preset_name")}{" "}
                                       <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                       id="edit-preset-name"
-                                      placeholder="Enter preset name"
+                                      placeholder={t("preset_name_placeholder")}
                                       value={editPresetName}
                                       onChange={(e) =>
                                         setEditPresetName(e.target.value)
@@ -528,7 +536,7 @@ const CameraPositionPresets = ({
                                   </div>
                                   <div className="space-y-2">
                                     <Label htmlFor="edit-location">
-                                      Location{" "}
+                                      {t("location")}{" "}
                                       <span className="text-red-500">*</span>
                                     </Label>
                                     <LocationSearch
@@ -549,7 +557,7 @@ const CameraPositionPresets = ({
                                         setPresetToEdit(null);
                                       }}
                                     >
-                                      Cancel
+                                      {t("cancel")}
                                     </Button>
                                     <Button
                                       variant="primary"
@@ -562,7 +570,7 @@ const CameraPositionPresets = ({
                                         updatePresetMutation.isPending
                                       }
                                     >
-                                      Update
+                                      {t("update")}
                                     </Button>
                                   </div>
                                 </div>
@@ -576,7 +584,7 @@ const CameraPositionPresets = ({
                               className="h-8 text-xs shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                             >
                               <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                              <span className="md:inline">Delete</span>
+                              <span className="md:inline">{t("delete")}</span>
                             </Button>
                           </div>
                         </TableCell>
@@ -596,19 +604,20 @@ const CameraPositionPresets = ({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Position Preset</AlertDialogTitle>
+            <AlertDialogTitle>{t("delete_position_preset")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the preset "{presetToDelete?.name}
-              "? This action cannot be undone.
+              {t("delete_position_preset_confirmation", {
+                name: presetToDelete?.name,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeletePreset}
               className={buttonVariants({ variant: "destructive" })}
             >
-              Delete
+              {t("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
