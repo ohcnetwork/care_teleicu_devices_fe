@@ -35,7 +35,7 @@ export default function KeyboardShortcut(props: Props) {
           <>
             <kbd
               key={`shortcut-${idx}`}
-              className="hidden items-center px-1.5 font-sans font-medium text-zinc-300 shadow lg:inline-flex"
+              className="hidden items-center px-1.5 font-sans font-medium text-zinc-300 shadow-sm lg:inline-flex"
             >
               {shortcut.map((key, idx, keys) => (
                 <>

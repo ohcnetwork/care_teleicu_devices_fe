@@ -391,7 +391,7 @@ export const GatewayDeviceConfigureForm = ({
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="focus:outline-none relative"
+            className="focus:outline-hidden relative"
             aria-label="View connection status details"
           >
             {iconMap[testStatus]}

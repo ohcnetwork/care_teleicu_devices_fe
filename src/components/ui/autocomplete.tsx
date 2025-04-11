@@ -68,7 +68,7 @@ export function Autocomplete<T extends AutocompleteOption>({
       <PopoverTrigger asChild disabled={disabled}>
         <div
           className={cn(
-            "w-full h-9 px-3 rounded-md border border-gray-200 bg-white text-sm flex items-center justify-between cursor-pointer shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950",
+            "w-full h-9 px-3 rounded-md border border-gray-200 bg-white text-sm flex items-center justify-between cursor-pointer shadow-xs transition-colors focus:outline-hidden focus:ring-1 focus:ring-primary-500 focus:border-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950",
             className
           )}
           role="combobox"
@@ -104,7 +104,7 @@ export function Autocomplete<T extends AutocompleteOption>({
                 options.map((option) => (
                   <div
                     key={option.id}
-                    className="relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-gray-100 hover:text-gray-900"
+                    className="relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden hover:bg-gray-100 hover:text-gray-900"
                     onClick={() => {
                       onSelect(option);
                       setOpen(false);
