@@ -1,4 +1,4 @@
-import { TableSkeleton } from "@/components/shared/skeleton-loading";
+import { TableSkeleton } from "@/components/common/skeleton-loading";
 import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import CameraFeedControls from "@/lib/camera/player/feed-controls";
@@ -35,13 +35,14 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { LocationSearch } from "@/components/shared/location-search";
+import { LocationSearch } from "@/components/common/location-search";
 import { LocationList } from "@/lib/types/location";
 import useCameraStatus from "@/lib/camera/useCameraStatus";
 import { stringifyNestedObject } from "@/lib/utils";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
+import PluginComponent from "@/components/common/plugin-component";
 
 export const CameraShowPageCard = ({
   device,
@@ -51,10 +52,10 @@ export const CameraShowPageCard = ({
   facilityId: string;
 }) => {
   return (
-    <>
+    <PluginComponent>
       <CameraStream device={device} />
       <CameraPositionPresets device={device} facilityId={facilityId} />
-    </>
+    </PluginComponent>
   );
 };
 

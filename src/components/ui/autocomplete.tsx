@@ -7,7 +7,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { CardListSkeleton } from "@/components/shared/skeleton-loading";
+import { CardListSkeleton } from "@/components/common/skeleton-loading";
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon } from "lucide-react";
 
