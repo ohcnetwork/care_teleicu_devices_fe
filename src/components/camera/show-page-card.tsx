@@ -397,7 +397,7 @@ const CameraPositionPresets = ({
           {groupedPresets.map((group) => (
             <div key={group.locationId ?? "no-location"} className="space-y-3">
               {/* Location Group Header */}
-              <div className="flex items-center border-b pb-2">
+              <div className="flex items-center border-b border-gray-200 pb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
                   <Link
