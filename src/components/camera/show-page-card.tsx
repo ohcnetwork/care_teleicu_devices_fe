@@ -43,6 +43,8 @@ import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import PluginComponent from "@/components/common/plugin-component";
+import CameraErrorFallback from "@/components/common/camera-error-fallback";
+
 
 export const CameraShowPageCard = ({
   device,
@@ -109,18 +111,17 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
           )}
         </div>
       )}
-      {isError && (
-        <div className="text-xs bg-amber-50 px-3 py-2 rounded-md flex items-center gap-2 border border-amber-200 shadow-sm mt-2">
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
-          <span className="font-medium text-amber-700">Warning:</span>
-          <span className="text-amber-700 flex-1">
-            Unable to communicate with the camera device. The camera credentials
-            may be incorrect.
-          </span>
-          <Button variant="warning" size="sm" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </div>
+      {isError ? (
+        <CameraErrorFallback
+          onRetry={refetch}
+          deviceId={device.id}
+          hasConfigurePermission={true} // TODO: Replace with real permission logic
+        />
+      ) : (
+        <>
+          <CameraFeedPlayer />
+          <CameraFeedControls inlineView />
+        </>
       )}
     </CameraFeedProvider>
   );
