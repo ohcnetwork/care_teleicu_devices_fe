@@ -178,6 +178,9 @@ const CameraPositionPresets = ({
       queryClient.invalidateQueries({
         queryKey: ["camera-position-presets", device.id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["camera-presets"],
+      });
       setPresetName("");
       setSelectedLocation(null);
       setPopoverOpen(false);
@@ -330,12 +333,14 @@ const CameraPositionPresets = ({
   return (
     <div className="mt-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">Position Presets</h3>
+        {showPresets && (
+          <h3 className="text-lg font-medium">Position Presets</h3>
+        )}
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 gap-1 text-xs">
               <Plus className="h-3.5 w-3.5" />
-              Create Preset
+              {showPresets ? "Create Preset" : "Update Preset"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-4">
