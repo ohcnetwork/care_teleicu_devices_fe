@@ -47,14 +47,20 @@ import PluginComponent from "@/components/common/plugin-component";
 export const CameraShowPageCard = ({
   device,
   facilityId,
+  showPresets = true,
 }: {
   device: CameraDevice;
   facilityId: string;
+  showPresets?: boolean;
 }) => {
   return (
     <PluginComponent>
       <CameraStream device={device} />
-      <CameraPositionPresets device={device} facilityId={facilityId} />
+      <CameraPositionPresets
+        device={device}
+        facilityId={facilityId}
+        showPresets={showPresets}
+      />
     </PluginComponent>
   );
 };
@@ -129,9 +135,11 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
 const CameraPositionPresets = ({
   device,
   facilityId,
+  showPresets,
 }: {
   device: CameraDevice;
   facilityId: string;
+  showPresets?: boolean;
 }) => {
   const queryClient = useQueryClient();
   const [presetToDelete, setPresetToDelete] = useState<PositionPreset | null>(
@@ -388,208 +396,214 @@ const CameraPositionPresets = ({
         </Popover>
       </div>
 
-      {data?.results.length === 0 ? (
-        <div className="bg-gray-50 rounded-md p-6 text-center text-gray-500">
-          No position presets found for this camera
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {groupedPresets.map((group) => (
-            <div key={group.locationId ?? "no-location"} className="space-y-3">
-              {/* Location Group Header */}
-              <div className="flex items-center border-b border-gray-200 pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
-                  <Link
-                    href={`/facility/${facilityId}/settings/location/${group.locationId}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline"
-                  >
-                    {group.locationName}
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </Link>
-                  <span className="text-xs text-gray-500 ml-2">
-                    ({group.presets.length}{" "}
-                    {group.presets.length === 1 ? "preset" : "presets"})
-                  </span>
+      {showPresets &&
+        (data?.results.length === 0 ? (
+          <div className="bg-gray-50 rounded-md p-6 text-center text-gray-500">
+            No position presets found for this camera
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {groupedPresets.map((group) => (
+              <div
+                key={group.locationId ?? "no-location"}
+                className="space-y-3"
+              >
+                {/* Location Group Header */}
+                <div className="flex items-center border-b border-gray-200 pb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                    <Link
+                      href={`/facility/${facilityId}/settings/location/${group.locationId}`}
+                      className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline"
+                    >
+                      {group.locationName}
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
+                    <span className="text-xs text-gray-500 ml-2">
+                      ({group.presets.length}{" "}
+                      {group.presets.length === 1 ? "preset" : "presets"})
+                    </span>
+                  </div>
+                </div>
+
+                {/* Presets Table */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <Table className="border-collapse">
+                    <TableHeader>
+                      <TableRow className="bg-gray-100 border-b border-gray-200">
+                        <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700">
+                          Name
+                        </TableHead>
+                        <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 hidden md:table-cell">
+                          Position
+                        </TableHead>
+                        <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 text-right">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {group.presets.map((preset, index) => (
+                        <TableRow
+                          key={preset.id}
+                          className={`bg-white hover:bg-gray-50 transition-colors ${
+                            index !== group.presets.length - 1
+                              ? "border-b border-gray-200"
+                              : ""
+                          }`}
+                        >
+                          <TableCell className="py-3 px-4">
+                            <span className="text-sm font-medium text-gray-700">
+                              {preset.name}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3 px-4 hidden md:table-cell">
+                            <div className="flex items-center space-x-3">
+                              <div className="flex items-center space-x-1">
+                                <span className="text-xs font-medium text-gray-500">
+                                  X:
+                                </span>
+                                <span className="text-xs text-gray-700">
+                                  {preset.ptz.x.toFixed(1)}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <span className="text-xs font-medium text-gray-500">
+                                  Y:
+                                </span>
+                                <span className="text-xs text-gray-700">
+                                  {preset.ptz.y.toFixed(1)}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <span className="text-xs font-medium text-gray-500">
+                                  Zoom:
+                                </span>
+                                <span className="text-xs text-gray-700">
+                                  {preset.ptz.zoom.toFixed(1)}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-3 px-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleMoveToPreset(preset)}
+                                disabled={absoluteMoveMutation.isPending}
+                              >
+                                <Move className="h-3.5 w-3.5 mr-1.5" />
+                                <span className="md:inline">Move</span>
+                              </Button>
+                              <Popover
+                                open={
+                                  editPopoverOpen &&
+                                  presetToEdit?.id === preset.id
+                                }
+                                onOpenChange={(open) => {
+                                  if (!open) {
+                                    setEditPopoverOpen(false);
+                                    setPresetToEdit(null);
+                                  }
+                                }}
+                              >
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEditPreset(preset)}
+                                    disabled={updatePresetMutation.isPending}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                                    <span className="md:inline">Modify</span>
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80 p-4">
+                                  <div className="space-y-4">
+                                    <h4 className="font-medium text-sm">
+                                      Modify preset
+                                    </h4>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="edit-preset-name">
+                                        Preset Name{" "}
+                                        <span className="text-red-500">*</span>
+                                      </Label>
+                                      <Input
+                                        id="edit-preset-name"
+                                        placeholder="Enter preset name"
+                                        value={editPresetName}
+                                        onChange={(e) =>
+                                          setEditPresetName(e.target.value)
+                                        }
+                                        className="h-8 text-sm"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="edit-location">
+                                        Location{" "}
+                                        <span className="text-red-500">*</span>
+                                      </Label>
+                                      <LocationSearch
+                                        facilityId={facilityId}
+                                        mode="instance"
+                                        onSelect={setEditSelectedLocation}
+                                        value={editSelectedLocation}
+                                        disabled={
+                                          updatePresetMutation.isPending
+                                        }
+                                      />
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 text-xs"
+                                        onClick={() => {
+                                          setEditPopoverOpen(false);
+                                          setPresetToEdit(null);
+                                        }}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        variant="primary"
+                                        size="sm"
+                                        className="h-8 text-xs"
+                                        onClick={handleUpdatePreset}
+                                        disabled={
+                                          !editPresetName.trim() ||
+                                          !editSelectedLocation ||
+                                          updatePresetMutation.isPending
+                                        }
+                                      >
+                                        Update
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeletePreset(preset)}
+                                disabled={deletePresetMutation.isPending}
+                                className="h-8 text-xs shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                                <span className="md:inline">Delete</span>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
-
-              {/* Presets Table */}
-              <div className="rounded-lg overflow-hidden border border-gray-200">
-                <Table className="border-collapse">
-                  <TableHeader>
-                    <TableRow className="bg-gray-100 border-b border-gray-200">
-                      <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700">
-                        Name
-                      </TableHead>
-                      <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 hidden md:table-cell">
-                        Position
-                      </TableHead>
-                      <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 text-right">
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {group.presets.map((preset, index) => (
-                      <TableRow
-                        key={preset.id}
-                        className={`bg-white hover:bg-gray-50 transition-colors ${
-                          index !== group.presets.length - 1
-                            ? "border-b border-gray-200"
-                            : ""
-                        }`}
-                      >
-                        <TableCell className="py-3 px-4">
-                          <span className="text-sm font-medium text-gray-700">
-                            {preset.name}
-                          </span>
-                        </TableCell>
-                        <TableCell className="py-3 px-4 hidden md:table-cell">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex items-center space-x-1">
-                              <span className="text-xs font-medium text-gray-500">
-                                X:
-                              </span>
-                              <span className="text-xs text-gray-700">
-                                {preset.ptz.x.toFixed(1)}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <span className="text-xs font-medium text-gray-500">
-                                Y:
-                              </span>
-                              <span className="text-xs text-gray-700">
-                                {preset.ptz.y.toFixed(1)}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <span className="text-xs font-medium text-gray-500">
-                                Zoom:
-                              </span>
-                              <span className="text-xs text-gray-700">
-                                {preset.ptz.zoom.toFixed(1)}
-                              </span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3 px-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleMoveToPreset(preset)}
-                              disabled={absoluteMoveMutation.isPending}
-                            >
-                              <Move className="h-3.5 w-3.5 mr-1.5" />
-                              <span className="md:inline">Move</span>
-                            </Button>
-                            <Popover
-                              open={
-                                editPopoverOpen &&
-                                presetToEdit?.id === preset.id
-                              }
-                              onOpenChange={(open) => {
-                                if (!open) {
-                                  setEditPopoverOpen(false);
-                                  setPresetToEdit(null);
-                                }
-                              }}
-                            >
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleEditPreset(preset)}
-                                  disabled={updatePresetMutation.isPending}
-                                >
-                                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                                  <span className="md:inline">Modify</span>
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-80 p-4">
-                                <div className="space-y-4">
-                                  <h4 className="font-medium text-sm">
-                                    Modify preset
-                                  </h4>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="edit-preset-name">
-                                      Preset Name{" "}
-                                      <span className="text-red-500">*</span>
-                                    </Label>
-                                    <Input
-                                      id="edit-preset-name"
-                                      placeholder="Enter preset name"
-                                      value={editPresetName}
-                                      onChange={(e) =>
-                                        setEditPresetName(e.target.value)
-                                      }
-                                      className="h-8 text-sm"
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="edit-location">
-                                      Location{" "}
-                                      <span className="text-red-500">*</span>
-                                    </Label>
-                                    <LocationSearch
-                                      facilityId={facilityId}
-                                      mode="instance"
-                                      onSelect={setEditSelectedLocation}
-                                      value={editSelectedLocation}
-                                      disabled={updatePresetMutation.isPending}
-                                    />
-                                  </div>
-                                  <div className="flex justify-end gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="h-8 text-xs"
-                                      onClick={() => {
-                                        setEditPopoverOpen(false);
-                                        setPresetToEdit(null);
-                                      }}
-                                    >
-                                      Cancel
-                                    </Button>
-                                    <Button
-                                      variant="primary"
-                                      size="sm"
-                                      className="h-8 text-xs"
-                                      onClick={handleUpdatePreset}
-                                      disabled={
-                                        !editPresetName.trim() ||
-                                        !editSelectedLocation ||
-                                        updatePresetMutation.isPending
-                                      }
-                                    >
-                                      Update
-                                    </Button>
-                                  </div>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeletePreset(preset)}
-                              disabled={deletePresetMutation.isPending}
-                              className="h-8 text-xs shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                            >
-                              <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                              <span className="md:inline">Delete</span>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        ))}
 
       <AlertDialog
         open={!!presetToDelete}
