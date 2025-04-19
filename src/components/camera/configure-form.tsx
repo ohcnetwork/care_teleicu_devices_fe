@@ -13,15 +13,23 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PluginComponent from "@/components/common/plugin-component";
+import { CameraShowPageCard } from "./show-page-card";
+import { CameraDevice } from "@/lib/camera/types";
 
 export const CameraDeviceConfigureForm = ({
   facilityId,
   metadata,
   onChange,
+  deviceId,
 }: ConfigureFormProps) => {
   const { data, isLoading } = useDevices({
     facilityId,
     careType: "gateway",
+  });
+
+  const { data: cameras, isLoading: camerasLoading } = useDevices({
+    facilityId,
+    careType: "camera",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -42,9 +50,17 @@ export const CameraDeviceConfigureForm = ({
 
   const gatewayDevices = data?.results ?? [];
   const gateway = gatewayDevices.find((device) => device.id === gatewayId);
+  const camera = cameras?.results.find((device) => device.id === deviceId);
 
   return (
     <PluginComponent>
+      {camera?.id != undefined && (
+        <CameraShowPageCard
+          device={camera as CameraDevice}
+          facilityId={facilityId}
+          showPresets={false}
+        />
+      )}
       <div className="space-y-4">
         <div>
           <Label className="mb-2">
@@ -83,7 +99,7 @@ export const CameraDeviceConfigureForm = ({
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {isLoading ? (
+              {isLoading || camerasLoading ? (
                 <div className="px-2 py-1.5 text-sm text-gray-500">
                   Loading...
                 </div>
