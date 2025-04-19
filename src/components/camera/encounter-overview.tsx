@@ -1,12 +1,9 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Autocomplete } from "@/components/ui/autocomplete";
-import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import camerasOfPresetLocationApi from "@/lib/camera/camerasOfPresetLocationApi";
-import CameraFeedControls from "@/lib/camera/player/feed-controls";
-import CameraFeedPlayer from "@/lib/camera/player/feed-player";
+import { CameraShowPageCard } from "@/components/camera/show-page-card";
 import { PositionPreset } from "@/lib/camera/types";
 import { query, mutate } from "@/lib/request";
 import { Encounter } from "@/lib/types/encounter";
@@ -110,15 +107,11 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
           {/* Camera Feed Content */}
           {cameras.results.map((camera) => (
             <TabsContent key={camera.id} value={camera.id}>
-              <CameraFeedProvider device={camera}>
-                <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
-                  <CameraFeedPlayer />
-                  <CameraFeedControls
-                    inlineView
-                    onRelativeMoved={() => setSelectedPreset(undefined)}
-                  />
-                </div>
-              </CameraFeedProvider>
+              <CameraShowPageCard
+                device={camera}
+                facilityId={encounter.facility.id}
+                showPresets={false}
+              />
             </TabsContent>
           ))}
         </Tabs>
