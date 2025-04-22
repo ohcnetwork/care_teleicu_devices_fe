@@ -21,6 +21,7 @@ interface Props {
 export const CameraEncounterOverview = ({ encounter }: Props) => {
   const [activeCamera, setActiveCamera] = useState<string>();
   const [selectedPreset, setSelectedPreset] = useState<PositionPreset>();
+  const [isAwayFromPreset, setIsAwayFromPreset] = useState(false);
 
   const { data: cameras, isLoading } = useQuery({
     queryKey: ["camera-devices", encounter.current_location?.id],
@@ -68,6 +69,11 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     setActiveCamera(cameras.results[0].id);
   }
 
+  const handleSelectPreset = (preset: PositionPreset) => {
+    setSelectedPreset(preset);
+    setIsAwayFromPreset(false);
+  };
+
   if (isLoading || !cameras) {
     return null;
   }
@@ -96,8 +102,10 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
                   device={activeCameraDevice}
                   locationId={encounter.current_location.id}
                   selectedPreset={selectedPreset}
-                  onSelectPreset={setSelectedPreset}
+                  onSelectPreset={handleSelectPreset}
+                  onUpdatePreset={() => setIsAwayFromPreset(false)}
                   isMoving={isMoving}
+                  isAwayFromPreset={isAwayFromPreset}
                 />
               </div>
             )}
@@ -111,7 +119,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
                   <CameraFeedPlayer />
                   <CameraFeedControls
                     inlineView
-                    onRelativeMoved={() => setSelectedPreset(undefined)}
+                    onRelativeMoved={() => setIsAwayFromPreset(true)}
                   />
                 </div>
               </CameraFeedProvider>

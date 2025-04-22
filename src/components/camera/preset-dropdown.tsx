@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CameraDevice, PositionPreset } from "@/lib/camera/types";
 import { query, mutate } from "@/lib/request";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Move, Save, ChevronDown } from "lucide-react";
+import { ChevronDown, SaveIcon } from "lucide-react";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import useCameraStatus from "@/lib/camera/useCameraStatus";
 
@@ -16,7 +17,9 @@ interface Props {
   locationId: string;
   selectedPreset: PositionPreset | undefined;
   onSelectPreset: (preset: PositionPreset) => void;
+  onUpdatePreset: () => void;
   isMoving: boolean;
+  isAwayFromPreset: boolean;
 }
 
 export const PresetDropdown = ({
@@ -24,7 +27,9 @@ export const PresetDropdown = ({
   locationId,
   selectedPreset,
   onSelectPreset,
+  onUpdatePreset,
   isMoving,
+  isAwayFromPreset,
 }: Props) => {
   const queryClient = useQueryClient();
   const { data: cameraStatus } = useCameraStatus(device);
@@ -50,58 +55,57 @@ export const PresetDropdown = ({
       queryClient.invalidateQueries({
         queryKey: ["camera-presets", device.id, locationId],
       });
+      onUpdatePreset();
     },
   });
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <div className="flex gap-2">
+      {isAwayFromPreset && selectedPreset && (
         <Button
           variant="outline"
           size="sm"
-          className="justify-between"
-          disabled={!positionPresets?.results.length}
+          onClick={() => {
+            if (cameraStatus) {
+              updatePreset(selectedPreset);
+            }
+          }}
+          disabled={!cameraStatus || isMoving}
         >
-          <span className="text-sm">Position Presets</span>
-          <ChevronDown className="size-4 shrink-0 opacity-50" />
+          <SaveIcon className="size-4" />
+          <span>Update</span>
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="min-w-64 sm:w-auto p-0" align="end">
-        <div className="max-h-80 overflow-y-auto">
-          {positionPresets?.results.map((preset) => (
-            <div
-              key={preset.id}
-              className="flex gap-3 items-center justify-between px-3 py-2 hover:bg-gray-50"
-            >
-              <span className="font-medium truncate text-sm">
-                {preset.name}
-              </span>
-              <div className="flex gap-1">
-                <Button
-                  variant="outline"
-                  disabled={isMoving}
-                  size="xs"
-                  onClick={() => onSelectPreset(preset)}
-                >
-                  <span>Move</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => {
-                    if (cameraStatus) {
-                      updatePreset(preset);
-                    }
-                  }}
-                  disabled={!cameraStatus || isMoving}
-                >
-                  <span>Save</span>
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </PopoverContent>
-    </Popover>
+      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            size="sm"
+            variant="outline"
+            className="justify-between"
+            disabled={!positionPresets?.results.length || isMoving}
+          >
+            <span className="text-sm truncate">
+              {selectedPreset?.name || "Select position preset..."}
+            </span>
+            <ChevronDown className="size-4 shrink-0 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="min-w-64 sm:w-auto" align="end">
+          <div className="max-h-80 overflow-y-auto">
+            {positionPresets?.results.map((preset) => (
+              <DropdownMenuItem
+                key={preset.id}
+                className="flex gap-3 items-center justify-between px-3 py-2"
+                onClick={() => onSelectPreset(preset)}
+              >
+                <span className="font-medium truncate text-sm">
+                  {preset.name}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
