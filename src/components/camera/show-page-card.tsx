@@ -288,7 +288,6 @@ const CameraPositionPresets = ({
   // Add handler for set default action
   const handleSetDefault = (preset: PositionPreset) => {
     setPresetToDefault(preset);
-    console.log(presetToDefault);
     setDefaultMutation.mutate({});
   };
 
