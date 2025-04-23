@@ -29,4 +29,23 @@ export default apiRoutes({
     method: HttpMethod.DELETE,
     TResponse: {} as unknown,
   },
+  batchRequest: {
+    path: "/api/v1/batch_requests/",
+    method: HttpMethod.POST,
+    TRequest: {} as {
+      requests: Array<{
+        url: string;
+        method: HttpMethod;
+        reference_id: string;
+        body: PositionPresetWriteRequest;
+      }>;
+    },
+    TResponse: {} as {
+      results: Array<{
+        reference_id: string;
+        status: number;
+        body: PositionPreset;
+      }>;
+    },
+  },
 });
