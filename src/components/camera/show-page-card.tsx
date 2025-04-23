@@ -228,7 +228,7 @@ const CameraPositionPresets = ({
 
   // Add mutation for updating preset
   const updatePresetMutation = useMutation({
-    mutationFn: mutate(cameraPositionPresetApi.set_default, {
+    mutationFn: mutate(cameraPositionPresetApi.update, {
       pathParams: { cameraId: device.id, presetId: presetToEdit?.id || "" },
     }),
     onSuccess: () => {
