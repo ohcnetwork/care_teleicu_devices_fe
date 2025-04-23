@@ -29,4 +29,9 @@ export default apiRoutes({
     method: HttpMethod.DELETE,
     TResponse: {} as unknown,
   },
+  set_default: {
+    path: "/api/camera_device/{cameraId}/position_presets/{presetId}/set_default/",
+    method: HttpMethod.POST,
+    TResponse: {} as unknown,
+  },
 });

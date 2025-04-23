@@ -17,7 +17,15 @@ import {
 } from "@/components/ui/table";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, ExternalLink, Move, Pencil } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ExternalLink,
+  Move,
+  Pencil,
+  Star,
+  StarOff,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -145,6 +153,9 @@ const CameraPositionPresets = ({
 
   // Add state for the preset being edited
   const [presetToEdit, setPresetToEdit] = useState<PositionPreset | null>(null);
+  const [presetToDefault, setPresetToDefault] = useState<PositionPreset | null>(
+    null
+  );
   const [editPopoverOpen, setEditPopoverOpen] = useState(false);
   const [editPresetName, setEditPresetName] = useState("");
   const [editSelectedLocation, setEditSelectedLocation] =
@@ -217,7 +228,7 @@ const CameraPositionPresets = ({
 
   // Add mutation for updating preset
   const updatePresetMutation = useMutation({
-    mutationFn: mutate(cameraPositionPresetApi.update, {
+    mutationFn: mutate(cameraPositionPresetApi.set_default, {
       pathParams: { cameraId: device.id, presetId: presetToEdit?.id || "" },
     }),
     onSuccess: () => {
@@ -239,6 +250,20 @@ const CameraPositionPresets = ({
     },
   });
 
+  const setDefaultMutation = useMutation({
+    mutationFn: mutate(cameraPositionPresetApi.set_default, {
+      pathParams: { cameraId: device.id, presetId: presetToDefault?.id || "" },
+    }),
+    onSuccess: () => {
+      // Refresh the presets list after update
+      queryClient.invalidateQueries({
+        queryKey: ["camera-position-presets", device.id],
+      });
+
+      setPresetToDefault(null);
+    },
+  });
+
   const handleDeletePreset = (preset: PositionPreset) => {
     setPresetToDelete(preset);
   };
@@ -247,6 +272,13 @@ const CameraPositionPresets = ({
     if (presetToDelete) {
       deletePresetMutation.mutate(presetToDelete.id);
     }
+  };
+
+  // Add handler for set default action
+  const handleSetDefault = (preset: PositionPreset) => {
+    setPresetToDefault(preset);
+    console.log(presetToDefault);
+    setDefaultMutation.mutate({});
   };
 
   // Add handler for move action
@@ -475,6 +507,30 @@ const CameraPositionPresets = ({
                         </TableCell>
                         <TableCell className="py-3 px-4 text-right">
                           <div className="flex justify-end gap-2">
+                            <Button
+                              variant={
+                                preset.is_default ? "primary" : "outline"
+                              }
+                              size="sm"
+                              onClick={() => handleSetDefault(preset)}
+                              disabled={setDefaultMutation.isPending}
+                            >
+                              {preset.is_default ? (
+                                <>
+                                  <Star className="h-3.5 w-3.5 mr-1.5" />
+                                  <span className="md:inline">
+                                    Default Preset
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <StarOff className="h-3.5 w-3.5 mr-1.5" />
+                                  <span className="md:inline">
+                                    Set as default
+                                  </span>
+                                </>
+                              )}
+                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
