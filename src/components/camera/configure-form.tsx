@@ -40,6 +40,12 @@ export const CameraDeviceConfigureForm = ({
     }
   }, [gatewayId]);
 
+  useEffect(() => {
+    if (!metadata.type) {
+      handleChange("type", "ONVIF");
+    }
+  }, []);
+
   const gatewayDevices = data?.results ?? [];
   const gateway = gatewayDevices.find((device) => device.id === gatewayId);
 
@@ -52,7 +58,8 @@ export const CameraDeviceConfigureForm = ({
             <span className="text-red-500">*</span>
           </Label>
           <Select
-            value={metadata.type || ""}
+            defaultValue={"ONVIF"}
+            value={metadata.type}
             onValueChange={(value) => handleChange("type", value)}
           >
             <SelectTrigger className="w-full">
@@ -67,7 +74,6 @@ export const CameraDeviceConfigureForm = ({
         <div>
           <Label className="mb-2">
             Gateway Device
-            <span className="text-red-500">*</span>
           </Label>
           <Select
             value={gatewayId}
@@ -114,7 +120,6 @@ export const CameraDeviceConfigureForm = ({
         <div>
           <Label className="mb-2">
             Endpoint Address
-            <span className="text-red-500">*</span>
           </Label>
           <Input
             type="text"
@@ -127,7 +132,6 @@ export const CameraDeviceConfigureForm = ({
         <div>
           <Label className="mb-2">
             Username
-            <span className="text-red-500">*</span>
           </Label>
           <Input
             placeholder="Camera username"
@@ -140,7 +144,6 @@ export const CameraDeviceConfigureForm = ({
         <div>
           <Label className="mb-2">
             Password
-            <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
             <Input
@@ -172,7 +175,6 @@ export const CameraDeviceConfigureForm = ({
         <div>
           <Label className="mb-2">
             Stream ID
-            <span className="text-red-500">*</span>
           </Label>
           <Input
             placeholder="Camera stream ID"
