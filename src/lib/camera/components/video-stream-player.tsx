@@ -9,7 +9,7 @@ type StreamPlayerProps = React.VideoHTMLAttributes<HTMLVideoElement> & {
   onPlay?: () => void;
   onEnded?: () => void;
   onWaiting?: () => void;
-  onSuccess?: (resp: any) => void;
+  onConnected?: () => void;
   onError?: (err: any) => void;
 };
 
@@ -20,11 +20,11 @@ export const VideoStreamPlayer = ({
   onPlay,
   onEnded,
   onWaiting,
-  onSuccess,
+  onConnected,
   onError,
   ...props
 }: StreamPlayerProps) => {
-  const wsRef = useRef<WebSocket>();
+  const wsRef = useRef<WebSocket | null>(null);
   let mediaSource: MediaSource;
   let mseSourceBuffer: SourceBuffer;
   let buf: Uint8Array;
@@ -98,9 +98,7 @@ export const VideoStreamPlayer = ({
       }
       url.pathname = url.pathname.replace("mse", "hls/live/index.m3u8");
       playerRef.current.src = url.toString();
-      playerRef.current.onplaying = () => {
-        onSuccess?.(undefined);
-      };
+      playerRef.current.onplaying = () => onConnected?.();
     } catch (err) {
       console.debug(err);
       onError?.(err);
@@ -122,7 +120,7 @@ export const VideoStreamPlayer = ({
         const ws = new WebSocket(streamUrl);
         wsRef.current = ws;
         ws.binaryType = "arraybuffer";
-        ws.onopen = (_) => onSuccess?.(undefined);
+        ws.onopen = (_) => onConnected?.();
         ws.onerror = (event) => onError?.(event);
         ws.onmessage = function (event) {
           const data = new Uint8Array(event.data);
@@ -173,6 +171,10 @@ export const VideoStreamPlayer = ({
       disablePictureInPicture
       playsInline
       ref={playerRef}
+      onPlay={onPlay}
+      onWaiting={onWaiting}
+      onEnded={onEnded}
+      onError={onError}
       {...props}
     />
   );
