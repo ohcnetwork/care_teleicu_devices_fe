@@ -179,7 +179,7 @@ const CameraPositionPresets = ({
     queryKey: ["camera-position-presets", device.id],
     queryFn: query(cameraPositionPresetApi.list, {
       pathParams: { cameraId: device.id },
-      queryParams: { limit: 100, ordering: "sort_index" },
+      queryParams: { limit: 100, ordering: "location__name,sort_index" },
     }),
   });
 
