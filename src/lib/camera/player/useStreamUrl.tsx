@@ -1,20 +1,15 @@
+import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { CameraDevice } from "@/lib/camera/types";
+import { query } from "@/lib/request";
 import { useQuery } from "@tanstack/react-query";
 
 export const useStreamUrl = (device: CameraDevice) => {
-  // return useQuery({
-  //   queryKey: ["camera-feed-stream-url", device.id],
-  //   queryFn: query(cameraActionApi.getStreamToken, {
-  //     pathParams: { cameraId: device.id },
-  //   }),
-  //   select: (data: { token: string }) => makeStreamUrl(device, data.token),
-  // });
-
   return useQuery({
     queryKey: ["camera-feed-stream-url", device.id],
-    queryFn: async () => {
-      return makeStreamUrl(device);
-    },
+    queryFn: query(cameraActionApi.getStreamToken, {
+      pathParams: { cameraId: device.id },
+    }),
+    select: (data: { token: string }) => makeStreamUrl(device, data.token),
   });
 };
 

@@ -24,7 +24,7 @@ export const VideoStreamPlayer = ({
   onError,
   ...props
 }: StreamPlayerProps) => {
-  const wsRef = useRef<WebSocket>();
+  const wsRef = useRef<WebSocket | null>(null);
   let mediaSource: MediaSource;
   let mseSourceBuffer: SourceBuffer;
   let buf: Uint8Array;
