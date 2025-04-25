@@ -33,7 +33,7 @@ type ICameraFeedContext = {
 
   cameraStatus: GetStatusResponse | undefined;
   cameraStatusLoading: boolean;
-
+  isCameraStatusError: boolean;
   ptzPrecision: number;
   setPtzPrecision: Dispatch<SetStateAction<number>>;
 };
@@ -54,8 +54,11 @@ export function CameraFeedProvider({
 
   const { data: streamUrl, isPending: isAuthenticating } = useStreamUrl(device);
 
-  const { data: cameraStatus, isFetching: cameraStatusLoading } =
-    useCameraStatus(device);
+  const {
+    data: cameraStatus,
+    isFetching: cameraStatusLoading,
+    isError: isCameraStatusError,
+  } = useCameraStatus(device);
 
   return (
     <CameraFeedContext.Provider
@@ -70,6 +73,7 @@ export function CameraFeedProvider({
         isAuthenticating,
         cameraStatus,
         cameraStatusLoading,
+        isCameraStatusError,
         ptzPrecision,
         setPtzPrecision,
       }}

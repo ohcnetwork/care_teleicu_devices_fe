@@ -1,5 +1,8 @@
 import { TableSkeleton } from "@/components/common/skeleton-loading";
-import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
+import {
+  CameraFeedProvider,
+  useCameraFeed,
+} from "@/lib/camera/camera-feed-context";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import CameraFeedControls from "@/lib/camera/player/feed-controls";
 import CameraFeedPlayer from "@/lib/camera/player/feed-player";
@@ -81,6 +84,7 @@ export const CameraShowPageCard = ({
 
 const CameraStream = ({ device }: { device: CameraDevice }) => {
   const { data: status, isError, refetch } = useCameraStatus(device);
+
   return (
     <CameraFeedProvider device={device}>
       <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
@@ -141,21 +145,31 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
           </span>
         </div>
       ) : (
-        isError && (
-          <div className="text-xs bg-amber-50 px-3 py-2 rounded-md flex items-center gap-2 border border-amber-200 shadow-sm mt-2">
-            <AlertTriangle className="size-4 text-amber-500" />
-            <span className="font-medium text-amber-700">Warning:</span>
-            <span className="text-amber-700 flex-1">
-              Unable to communicate with the camera device. The camera
-              credentials may be incorrect.
-            </span>
-            <Button variant="warning" size="sm" onClick={() => refetch()}>
-              Retry
-            </Button>
-          </div>
-        )
+        isError && <CameraCommunicationError refetch={refetch} />
       )}
     </CameraFeedProvider>
+  );
+};
+
+const CameraCommunicationError = ({ refetch }: { refetch: () => void }) => {
+  const { playerStatus } = useCameraFeed();
+
+  if (playerStatus !== "playing") {
+    return null;
+  }
+
+  return (
+    <div className="text-xs bg-amber-50 px-3 py-2 rounded-md flex items-center gap-2 border border-amber-200 shadow-sm mt-2">
+      <AlertTriangle className="size-4 text-amber-500" />
+      <span className="font-medium text-amber-700">Warning:</span>
+      <span className="text-amber-700 flex-1">
+        Unable to communicate with the camera device. The camera credentials may
+        be incorrect.
+      </span>
+      <Button variant="warning" size="sm" onClick={() => refetch()}>
+        Retry
+      </Button>
+    </div>
   );
 };
 

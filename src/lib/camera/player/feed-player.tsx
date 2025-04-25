@@ -29,10 +29,7 @@ export default function CameraFeedPlayer() {
 
   return (
     <>
-      {(playerStatus === "loading" || playerStatus === "waiting") && (
-        <StreamLoading />
-      )}
-      {playerStatus === "unauthorized" && <StreamUnauthorized />}
+      <FallbackOverlay />
       <VideoStreamPlayer
         playerRef={playerRef as React.RefObject<HTMLVideoElement>}
         streamUrl={streamUrl}
@@ -50,10 +47,42 @@ export default function CameraFeedPlayer() {
   );
 }
 
+const FallbackOverlay = () => {
+  const { isAuthenticating, playerStatus, isCameraStatusError } =
+    useCameraFeed();
+
+  if (
+    playerStatus === "loading" ||
+    playerStatus === "waiting" ||
+    isAuthenticating
+  ) {
+    return <StreamLoading />;
+  }
+
+  if (isCameraStatusError && playerStatus !== "playing") {
+    return <UnableToCommunicateWithCamera />;
+  }
+
+  if (playerStatus === "unauthorized") {
+    return <StreamUnauthorized />;
+  }
+};
+
 const StreamLoading = () => {
   return (
     <div className="absolute inset-0 size-full bg-gray-950 flex items-center justify-center">
       <Loader2 className="size-6 animate-spin text-white" />
+    </div>
+  );
+};
+
+const UnableToCommunicateWithCamera = () => {
+  return (
+    <div className="absolute inset-0 size-full bg-gray-950 flex flex-col gap-2 items-center justify-center">
+      <AlertTriangleIcon className="size-6 text-orange-400" />
+      <div className="text-orange-400 text-sm">
+        Unable to communicate with camera
+      </div>
     </div>
   );
 };
