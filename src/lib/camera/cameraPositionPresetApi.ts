@@ -48,4 +48,9 @@ export default apiRoutes({
       }>;
     },
   },
+  set_default: {
+    path: "/api/camera_device/{cameraId}/position_presets/{presetId}/set_default/",
+    method: HttpMethod.POST,
+    TResponse: {} as unknown,
+  },
 });

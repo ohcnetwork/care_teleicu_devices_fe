@@ -168,7 +168,6 @@ export const VideoStreamPlayer = ({
       id="video-player"
       autoPlay
       muted
-      disablePictureInPicture
       playsInline
       ref={playerRef}
       onPlay={onPlay}

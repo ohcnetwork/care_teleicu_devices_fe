@@ -47,12 +47,9 @@ export const CameraDeviceConfigureForm = ({
     <PluginComponent>
       <div className="space-y-4">
         <div>
-          <Label className="mb-2">
-            Type
-            <span className="text-red-500">*</span>
-          </Label>
+          <Label className="mb-2">Type</Label>
           <Select
-            value={metadata.type || ""}
+            value={metadata.type}
             onValueChange={(value) => handleChange("type", value)}
           >
             <SelectTrigger className="w-full">
@@ -65,10 +62,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Gateway Device
-            <span className="text-red-500">*</span>
-          </Label>
+          <Label className="mb-2">Gateway Device</Label>
           <Select
             value={gatewayId}
             onValueChange={(value) => handleChange("gateway", value)}
@@ -112,10 +106,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Endpoint Address
-            <span className="text-red-500">*</span>
-          </Label>
+          <Label className="mb-2">Endpoint Address</Label>
           <Input
             type="text"
             placeholder="Camera's endpoint address (e.g., 192.168.1.100)"
@@ -125,10 +116,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Username
-            <span className="text-red-500">*</span>
-          </Label>
+          <Label className="mb-2">Username</Label>
           <Input
             placeholder="Camera username"
             autoComplete="off"
@@ -138,10 +126,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Password
-            <span className="text-red-500">*</span>
-          </Label>
+          <Label className="mb-2">Password</Label>
           <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
@@ -170,10 +155,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Stream ID
-            <span className="text-red-500">*</span>
-          </Label>
+          <Label className="mb-2">Stream ID</Label>
           <Input
             placeholder="Camera stream ID"
             autoComplete="off"
