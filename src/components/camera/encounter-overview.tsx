@@ -33,7 +33,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     enabled: !!encounter.current_location,
   });
 
-  const { data: positionPresets } = useQuery({
+  const { data: positionPresets, isFetching: isFetchingPresets } = useQuery({
     queryKey: ["camera-presets", activeCamera, encounter.current_location?.id],
     queryFn: query(cameraPositionPresetApi.list, {
       pathParams: { cameraId: activeCamera ?? "" },
@@ -53,13 +53,17 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
   });
 
   useEffect(() => {
+    if (isFetchingPresets) {
+      return;
+    }
+
     if (positionPresets?.results.length) {
       setSelectedPreset(
         positionPresets.results.find((p) => p.is_default) ||
           positionPresets.results[0]
       );
     }
-  }, [positionPresets?.results.length]);
+  }, [positionPresets?.results.length, isFetchingPresets]);
 
   useEffect(() => {
     if (selectedPreset) {
