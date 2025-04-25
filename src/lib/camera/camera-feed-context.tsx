@@ -11,7 +11,12 @@ import {
   useState,
 } from "react";
 
-type PlayerStatus = "loading" | "playing" | "stopped";
+type PlayerStatus =
+  | "loading"
+  | "playing"
+  | "stopped"
+  | "waiting"
+  | "unauthorized";
 
 type ICameraFeedContext = {
   device: CameraDevice;
