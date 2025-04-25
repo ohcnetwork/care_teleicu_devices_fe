@@ -25,6 +25,8 @@ import {
   Pencil,
   Star,
   StarOff,
+  EyeIcon,
+  TargetIcon,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -51,6 +53,12 @@ import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import PluginComponent from "@/components/common/plugin-component";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const CameraShowPageCard = ({
   device,
@@ -522,39 +530,40 @@ const CameraPositionPresets = ({
                           </div>
                         </TableCell>
                         <TableCell className="py-3 px-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant={
-                                preset.is_default ? "primary" : "outline"
-                              }
-                              size="sm"
-                              onClick={() => handleSetDefault(preset)}
-                              disabled={setDefaultMutation.isPending}
-                            >
-                              {preset.is_default ? (
-                                <>
-                                  <Star className="h-3.5 w-3.5 mr-1.5" />
-                                  <span className="md:inline">
-                                    Default Preset
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <StarOff className="h-3.5 w-3.5 mr-1.5" />
-                                  <span className="md:inline">
-                                    Set as default
-                                  </span>
-                                </>
-                              )}
-                            </Button>
+                          <div className="flex justify-end gap-1">
+                            <div className="flex items-center gap-2 mr-3">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div>
+                                    <Switch
+                                      checked={preset.is_default}
+                                      onCheckedChange={() =>
+                                        handleSetDefault(preset)
+                                      }
+                                      disabled={preset.is_default}
+                                      className="data-[state=checked]:bg-primary-500"
+                                    />
+                                  </div>
+                                </TooltipTrigger>
+                                {preset.is_default && (
+                                  <TooltipContent>
+                                    To change the default preset, set another
+                                    preset as default
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                              <span className="text-xs text-gray-600">
+                                Default
+                              </span>
+                            </div>
                             <Button
                               variant="outline"
-                              size="sm"
+                              size="xs"
                               onClick={() => handleMoveToPreset(preset)}
                               disabled={absoluteMoveMutation.isPending}
                             >
-                              <Move className="h-3.5 w-3.5 mr-1.5" />
-                              <span className="md:inline">Move</span>
+                              <EyeIcon className="size-3" />
+                              <span className="md:inline">View</span>
                             </Button>
                             <Popover
                               open={
@@ -571,11 +580,11 @@ const CameraPositionPresets = ({
                               <PopoverTrigger asChild>
                                 <Button
                                   variant="outline"
-                                  size="sm"
+                                  size="xs"
                                   onClick={() => handleEditPreset(preset)}
                                   disabled={updatePresetMutation.isPending}
                                 >
-                                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                                  <Pencil className="size-3" />
                                   <span className="md:inline">Modify</span>
                                 </Button>
                               </PopoverTrigger>
@@ -661,7 +670,7 @@ const CameraPositionPresets = ({
                                         updatePresetMutation.isPending
                                       }
                                     >
-                                      <Move className="h-3.5 w-3.5 mr-1.5" />
+                                      <Move className="size-3" />
                                       Update with Camera's Current Position
                                     </Button>
                                     <hr className="my-4 bg-gray-200 h-px" />
@@ -697,12 +706,12 @@ const CameraPositionPresets = ({
                             </Popover>
                             <Button
                               variant="outline"
-                              size="sm"
+                              size="xs"
                               onClick={() => handleDeletePreset(preset)}
                               disabled={deletePresetMutation.isPending}
-                              className="h-8 text-xs shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                             >
-                              <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                              <Trash2 className="size-3" />
                               <span className="md:inline">Delete</span>
                             </Button>
                           </div>
