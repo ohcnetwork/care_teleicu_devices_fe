@@ -25,6 +25,7 @@ export interface CameraDevice extends DeviceList {
 interface PositionPresetBase {
   name: string;
   ptz: PTZPayload;
+  sort_index: number;
 }
 
 export interface PositionPresetWriteRequest extends PositionPresetBase {

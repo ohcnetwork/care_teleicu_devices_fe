@@ -23,6 +23,8 @@ import {
   ExternalLink,
   Move,
   Pencil,
+  ChevronUp,
+  ChevronDown,
   EyeIcon,
 } from "lucide-react";
 import {
@@ -50,6 +52,11 @@ import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import PluginComponent from "@/components/common/plugin-component";
+import { HttpMethod } from "@/lib/request";
+import {
+  useReorderMutation,
+  handleReorder,
+} from "@/lib/hooks/useReorderMutation";
 import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
@@ -80,7 +87,7 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
         <CameraFeedPlayer />
         <CameraFeedControls inlineView />
       </div>
-      <div className="mt-2">
+      <div className="mt-2 sm:hidden">
         <CameraFeedControls />
       </div>
       {!!status && (
@@ -127,7 +134,7 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
       )}
       {!device.care_metadata.gateway ? (
         <div className="text-xs bg-amber-50 px-3 py-2 rounded-md flex items-center gap-2 border border-amber-200 shadow-sm mt-2">
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertTriangle className="size-4 text-amber-500" />
           <span className="font-medium text-amber-700">Warning:</span>
           <span className="text-amber-700 flex-1">
             No gateway device has been configured for this device.
@@ -136,7 +143,7 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
       ) : (
         isError && (
           <div className="text-xs bg-amber-50 px-3 py-2 rounded-md flex items-center gap-2 border border-amber-200 shadow-sm mt-2">
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <AlertTriangle className="size-4 text-amber-500" />
             <span className="font-medium text-amber-700">Warning:</span>
             <span className="text-amber-700 flex-1">
               Unable to communicate with the camera device. The camera
@@ -182,7 +189,7 @@ const CameraPositionPresets = ({
     queryKey: ["camera-position-presets", device.id],
     queryFn: query(cameraPositionPresetApi.list, {
       pathParams: { cameraId: device.id },
-      queryParams: { limit: 100 },
+      queryParams: { limit: 100, ordering: "location__name,sort_index" },
     }),
   });
 
@@ -266,6 +273,31 @@ const CameraPositionPresets = ({
     },
   });
 
+  const reorderPresetMutation = useReorderMutation<PositionPreset>({
+    queryKey: ["camera-position-presets", device.id],
+    updateEndpoint: cameraPositionPresetApi.update.path,
+    updateMethod: HttpMethod.PUT,
+    getUpdateBody: (preset) => ({
+      name: preset.name,
+      ptz: preset.ptz,
+      location: preset.location.id,
+      sort_index: preset.sort_index,
+    }),
+    cameraId: device.id,
+  });
+
+  // Handle moving preset up or down in order
+  const handleReorderPreset = (
+    preset: PositionPreset,
+    direction: "up" | "down",
+    presets: PositionPreset[]
+  ) => {
+    const result = handleReorder(preset, direction, presets);
+    if (result) {
+      reorderPresetMutation.mutate(result);
+    }
+  };
+
   const { mutate: setAsDefault } = useMutation({
     mutationFn: (presetId: string) =>
       mutate(cameraPositionPresetApi.set_default, {
@@ -316,6 +348,7 @@ const CameraPositionPresets = ({
       name: editPresetName.trim(),
       ptz: editPTZ,
       location: editSelectedLocation.id,
+      sort_index: presetToEdit.sort_index, // Preserve existing sort_index
     });
   };
 
@@ -326,6 +359,7 @@ const CameraPositionPresets = ({
       name: presetName.trim(),
       ptz: cameraStatus.position,
       location: selectedLocation?.id,
+      sort_index: 0,
     });
   };
 
@@ -371,7 +405,7 @@ const CameraPositionPresets = ({
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 gap-1 text-xs">
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="size-3.5" />
               Create Preset
             </Button>
           </PopoverTrigger>
@@ -444,13 +478,13 @@ const CameraPositionPresets = ({
               {/* Location Group Header */}
               <div className="flex items-center border-b border-gray-200 pb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                  <div className="size-1.5 rounded-full bg-primary-500"></div>
                   <Link
                     href={`/facility/${facilityId}/settings/location/${group.locationId}`}
                     className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline"
                   >
                     {group.locationName}
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <ExternalLink className="size-3.5" />
                   </Link>
                   <span className="text-xs text-gray-500 ml-2">
                     ({group.presets.length}{" "}
@@ -472,6 +506,9 @@ const CameraPositionPresets = ({
                       </TableHead>
                       <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 text-right">
                         Actions
+                      </TableHead>
+                      <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700">
+                        <span className="sr-only">Move</span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -704,6 +741,55 @@ const CameraPositionPresets = ({
                               <span className="md:inline">Delete</span>
                             </Button>
                           </div>
+                        </TableCell>
+                        <TableCell className="flex flex-col p-0">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                onClick={() =>
+                                  handleReorderPreset(
+                                    preset,
+                                    "up",
+                                    group.presets
+                                  )
+                                }
+                                disabled={
+                                  reorderPresetMutation.isPending || index === 0
+                                }
+                              >
+                                <ChevronUp className="size-3" />
+                                <span className="sr-only">Move Up</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Move this preset up</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                onClick={() =>
+                                  handleReorderPreset(
+                                    preset,
+                                    "down",
+                                    group.presets
+                                  )
+                                }
+                                disabled={
+                                  reorderPresetMutation.isPending ||
+                                  index === group.presets.length - 1
+                                }
+                              >
+                                <ChevronDown className="size-3" />
+                                <span className="sr-only">Move Down</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Move this preset below
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     ))}

@@ -38,7 +38,7 @@ export const PresetDropdown = ({
     queryKey: ["camera-presets", device.id, locationId],
     queryFn: query(cameraPositionPresetApi.list, {
       pathParams: { cameraId: device.id },
-      queryParams: { location: locationId, limit: 100 },
+      queryParams: { location: locationId, limit: 100, ordering: "sort_index" },
     }),
   });
 
@@ -50,6 +50,7 @@ export const PresetDropdown = ({
         name: preset.name,
         ptz: cameraStatus?.position ?? preset.ptz,
         location: preset.location?.id,
+        sort_index: preset.sort_index,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({

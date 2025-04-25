@@ -1,4 +1,3 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
