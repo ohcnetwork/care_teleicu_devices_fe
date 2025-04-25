@@ -7,7 +7,6 @@ import { PositionPresetWriteRequest } from "@/lib/camera/types";
 interface ReorderItem {
   id: string;
   sort_index: number;
-  [key: string]: any;
 }
 
 interface ReorderMutationOptions<T extends ReorderItem> {
@@ -31,11 +30,7 @@ export function useReorderMutation<T extends ReorderItem>({
     mutationFn: async ({
       items,
     }: {
-      items: Array<{
-        id: string;
-        sort_index: number;
-        item: T;
-      }>;
+      items: { id: string; sort_index: number; item: T }[];
     }) => {
       return mutate(cameraPositionPresetApi.batchRequest, {
         pathParams: { cameraId },
