@@ -507,6 +507,9 @@ const CameraPositionPresets = ({
                       <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700 text-right">
                         Actions
                       </TableHead>
+                      <TableHead className="h-9 py-2 px-4 text-xs font-semibold text-gray-700">
+                        <span className="sr-only">Move</span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -553,49 +556,6 @@ const CameraPositionPresets = ({
                           </div>
                         </TableCell>
                         <TableCell className="py-3 px-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <div className="flex">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  handleReorderPreset(
-                                    preset,
-                                    "up",
-                                    group.presets
-                                  )
-                                }
-                                disabled={
-                                  reorderPresetMutation.isPending ||
-                                  group.presets.indexOf(preset) === 0
-                                }
-                                className="size-8 p-0"
-                              >
-                                <ChevronUp className="size-4" />
-                                <span className="sr-only">Move Up</span>
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  handleReorderPreset(
-                                    preset,
-                                    "down",
-                                    group.presets
-                                  )
-                                }
-                                disabled={
-                                  reorderPresetMutation.isPending ||
-                                  group.presets.indexOf(preset) ===
-                                    group.presets.length - 1
-                                }
-                                className="size-8 p-0"
-                              >
-                                <ChevronDown className="size-4" />
-                                <span className="sr-only">Move Down</span>
-                              </Button>
-                            </div>
-                          </div>
                           <div className="flex justify-end gap-1">
                             <div className="flex items-center gap-2 mr-3">
                               <Tooltip>
@@ -781,6 +741,55 @@ const CameraPositionPresets = ({
                               <span className="md:inline">Delete</span>
                             </Button>
                           </div>
+                        </TableCell>
+                        <TableCell className="flex flex-col p-0">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                onClick={() =>
+                                  handleReorderPreset(
+                                    preset,
+                                    "up",
+                                    group.presets
+                                  )
+                                }
+                                disabled={
+                                  reorderPresetMutation.isPending || index === 0
+                                }
+                              >
+                                <ChevronUp className="size-3" />
+                                <span className="sr-only">Move Up</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Move this preset up</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                onClick={() =>
+                                  handleReorderPreset(
+                                    preset,
+                                    "down",
+                                    group.presets
+                                  )
+                                }
+                                disabled={
+                                  reorderPresetMutation.isPending ||
+                                  index === group.presets.length - 1
+                                }
+                              >
+                                <ChevronDown className="size-3" />
+                                <span className="sr-only">Move Down</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Move this preset below
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     ))}
