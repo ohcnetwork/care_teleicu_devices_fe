@@ -68,7 +68,7 @@ export const CameraShowPageCard = ({
 };
 
 const CameraStream = ({ device }: { device: CameraDevice }) => {
-  const { data: status, isError, refetch } = useCameraStatus(device, 500);
+  const { data: status, isError, refetch } = useCameraStatus(device);
   return (
     <CameraFeedProvider device={device}>
       <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">

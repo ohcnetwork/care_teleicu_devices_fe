@@ -46,6 +46,11 @@ export default defineConfig({
     port: 10120,
     allowedHosts: true,
     host: "0.0.0.0",
+    cors: {
+      origin: "*",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+      credentials: true,
+    },
   },
   resolve: {
     alias: {
