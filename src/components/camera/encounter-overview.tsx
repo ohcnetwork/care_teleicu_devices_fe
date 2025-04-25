@@ -54,7 +54,10 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
 
   useEffect(() => {
     if (positionPresets?.results.length) {
-      setSelectedPreset(positionPresets.results[0]);
+      setSelectedPreset(
+        positionPresets.results.find((p) => p.is_default) ||
+          positionPresets.results[0]
+      );
     }
   }, [positionPresets?.results.length]);
 

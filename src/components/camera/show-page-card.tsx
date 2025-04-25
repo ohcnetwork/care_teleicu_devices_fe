@@ -17,7 +17,14 @@ import {
 } from "@/components/ui/table";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, ExternalLink, Move, Pencil } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ExternalLink,
+  Move,
+  Pencil,
+  EyeIcon,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +50,12 @@ import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import PluginComponent from "@/components/common/plugin-component";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const CameraShowPageCard = ({
   device,
@@ -247,6 +260,18 @@ const CameraPositionPresets = ({
       // toast.success("Preset updated", {
       //   description: `The preset "${presetToEdit?.name}" was successfully updated.`,
       // });
+    },
+  });
+
+  const { mutate: setAsDefault } = useMutation({
+    mutationFn: (presetId: string) =>
+      mutate(cameraPositionPresetApi.set_default, {
+        pathParams: { cameraId: device.id, presetId },
+      })({}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["camera-position-presets", device.id],
+      });
     },
   });
 
@@ -491,15 +516,40 @@ const CameraPositionPresets = ({
                           </div>
                         </TableCell>
                         <TableCell className="py-3 px-4 text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-end gap-1">
+                            <div className="flex items-center gap-2 mr-3">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div>
+                                    <Switch
+                                      checked={preset.is_default}
+                                      onCheckedChange={() =>
+                                        setAsDefault(preset.id)
+                                      }
+                                      disabled={preset.is_default}
+                                      className="data-[state=checked]:bg-primary-500"
+                                    />
+                                  </div>
+                                </TooltipTrigger>
+                                {preset.is_default && (
+                                  <TooltipContent>
+                                    To change the default preset, set another
+                                    preset as default
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                              <span className="text-xs text-gray-600">
+                                Default
+                              </span>
+                            </div>
                             <Button
                               variant="outline"
-                              size="sm"
+                              size="xs"
                               onClick={() => handleMoveToPreset(preset)}
                               disabled={absoluteMoveMutation.isPending}
                             >
-                              <Move className="h-3.5 w-3.5 mr-1.5" />
-                              <span className="md:inline">Move</span>
+                              <EyeIcon className="size-3" />
+                              <span className="md:inline">View</span>
                             </Button>
                             <Popover
                               open={
@@ -516,11 +566,11 @@ const CameraPositionPresets = ({
                               <PopoverTrigger asChild>
                                 <Button
                                   variant="outline"
-                                  size="sm"
+                                  size="xs"
                                   onClick={() => handleEditPreset(preset)}
                                   disabled={updatePresetMutation.isPending}
                                 >
-                                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                                  <Pencil className="size-3" />
                                   <span className="md:inline">Modify</span>
                                 </Button>
                               </PopoverTrigger>
@@ -606,7 +656,7 @@ const CameraPositionPresets = ({
                                         updatePresetMutation.isPending
                                       }
                                     >
-                                      <Move className="h-3.5 w-3.5 mr-1.5" />
+                                      <Move className="size-3" />
                                       Update with Camera's Current Position
                                     </Button>
                                     <hr className="my-4 bg-gray-200 h-px" />
@@ -642,12 +692,12 @@ const CameraPositionPresets = ({
                             </Popover>
                             <Button
                               variant="outline"
-                              size="sm"
+                              size="xs"
                               onClick={() => handleDeletePreset(preset)}
                               disabled={deletePresetMutation.isPending}
-                              className="h-8 text-xs shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                             >
-                              <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                              <Trash2 className="size-3" />
                               <span className="md:inline">Delete</span>
                             </Button>
                           </div>

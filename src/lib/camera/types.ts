@@ -44,4 +44,5 @@ export interface PositionPreset extends PositionPresetBase {
   };
   created_at: string;
   modified_at: string;
+  is_default: boolean;
 }
