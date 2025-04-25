@@ -44,7 +44,7 @@ export const CameraDeviceConfigureForm = ({
     if (!metadata.type) {
       handleChange("type", "ONVIF");
     }
-  }, []);
+  }, [metadata.type]);
 
   const gatewayDevices = data?.results ?? [];
   const gateway = gatewayDevices.find((device) => device.id === gatewayId);
@@ -72,9 +72,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Gateway Device
-          </Label>
+          <Label className="mb-2">Gateway Device</Label>
           <Select
             value={gatewayId}
             onValueChange={(value) => handleChange("gateway", value)}
@@ -118,9 +116,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Endpoint Address
-          </Label>
+          <Label className="mb-2">Endpoint Address</Label>
           <Input
             type="text"
             placeholder="Camera's endpoint address (e.g., 192.168.1.100)"
@@ -130,9 +126,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Username
-          </Label>
+          <Label className="mb-2">Username</Label>
           <Input
             placeholder="Camera username"
             autoComplete="off"
@@ -142,9 +136,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Password
-          </Label>
+          <Label className="mb-2">Password</Label>
           <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
@@ -173,9 +165,7 @@ export const CameraDeviceConfigureForm = ({
         </div>
 
         <div>
-          <Label className="mb-2">
-            Stream ID
-          </Label>
+          <Label className="mb-2">Stream ID</Label>
           <Input
             placeholder="Camera stream ID"
             autoComplete="off"
