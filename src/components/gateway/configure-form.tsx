@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
 import {
   Popover,
@@ -9,46 +9,29 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ConfigureFormProps } from "@/lib/types/common";
-import {
-  NetworkMetrics,
-  PingMetrics,
-} from "@/components/common/network-metrics";
+import { NetworkMetrics } from "@/components/common/network-metrics";
 import PluginComponent from "@/components/common/plugin-component";
+import { useGatewayHealthCheck } from "@/lib/device/hooks/useGatewayHealthCheck";
 
-interface HealthStatus {
-  server: boolean;
-  database: boolean;
-}
-
-// Maximum number of ping samples to keep for jitter calculation
-const MAX_PING_SAMPLES = 10;
+type TestStatus = "idle" | "loading" | "success" | "partial" | "error";
 
 export const GatewayDeviceConfigureForm = ({
   metadata,
   onChange,
 }: ConfigureFormProps) => {
-  const [testStatus, setTestStatus] = useState<
-    "idle" | "loading" | "success" | "partial" | "error"
-  >("idle");
+  const [testStatus, setTestStatus] = useState<TestStatus>("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
-  const [healthData, setHealthData] = useState<HealthStatus | null>(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  // Live ping monitoring states
-  const [continuousPing, setContinuousPing] = useState<boolean>(false);
-  const [pingMetrics, setPingMetrics] = useState<PingMetrics>({
-    current: 0,
-    min: Number.MAX_VALUE,
-    max: 0,
-    avg: 0,
-    jitter: 0,
-    samples: 0,
-  });
-
-  // Store recent ping times for jitter calculation
-  const pingHistoryRef = useRef<number[]>([]);
-  const pingTimeoutRef = useRef<number | null>(null);
-  const isPerformingPingRef = useRef<boolean>(false);
+  const {
+    healthData,
+    isLoading,
+    error,
+    metrics: pingMetrics,
+    startMonitoring,
+    stopMonitoring,
+    resetMetrics,
+  } = useGatewayHealthCheck(metadata.endpoint_address || "");
 
   // Auto-open popover when test completes
   useEffect(() => {
@@ -57,169 +40,28 @@ export const GatewayDeviceConfigureForm = ({
     }
   }, [testStatus]);
 
-  // Cleanup timeout on unmount
+  // Update test status based on health check results
   useEffect(() => {
-    return () => {
-      if (pingTimeoutRef.current) {
-        window.clearTimeout(pingTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Calculate standard deviation (jitter) from an array of ping times
-  const calculateJitter = (pingTimes: number[]): number => {
-    if (pingTimes.length <= 1) return 0;
-
-    // Calculate mean
-    const mean =
-      pingTimes.reduce((sum, time) => sum + time, 0) / pingTimes.length;
-
-    // Calculate sum of squared differences
-    const squaredDifferences = pingTimes.map((time) =>
-      Math.pow(time - mean, 2)
-    );
-    const sumSquaredDiff = squaredDifferences.reduce(
-      (sum, diff) => sum + diff,
-      0
-    );
-
-    // Calculate standard deviation (square root of variance)
-    const stdDev = Math.sqrt(sumSquaredDiff / pingTimes.length);
-
-    return Math.round(stdDev);
-  };
-
-  const updatePingMetrics = (delay: number): void => {
-    // Add current ping to history
-    pingHistoryRef.current.push(delay);
-
-    // Keep only the most recent samples
-    if (pingHistoryRef.current.length > MAX_PING_SAMPLES) {
-      pingHistoryRef.current.shift();
-    }
-
-    // Calculate jitter from ping history
-    const jitter = calculateJitter(pingHistoryRef.current);
-
-    setPingMetrics((prev) => {
-      // Calculate new average
-      const totalSamples = prev.samples + 1;
-      const newAvg = (prev.avg * prev.samples + delay) / totalSamples;
-
-      return {
-        current: delay,
-        min: Math.min(prev.min, delay),
-        max: Math.max(prev.max, delay),
-        avg: Math.round(newAvg),
-        jitter: jitter,
-        samples: totalSamples,
-      };
-    });
-  };
-
-  const resetPingMetrics = (): void => {
-    setPingMetrics({
-      current: 0,
-      min: Number.MAX_VALUE,
-      max: 0,
-      avg: 0,
-      jitter: 0,
-      samples: 0,
-    });
-    pingHistoryRef.current = [];
-  };
-
-  // Forward declaration for scheduleNextPing
-  const scheduleNextPing = (): void => {
-    if (continuousPing && metadata.endpoint_address) {
-      // Schedule next ping with a 500ms delay to prevent excessive network traffic
-      pingTimeoutRef.current = window.setTimeout(() => {
-        performPing();
-      }, 500);
-    }
-  };
-
-  const performPing = async (): Promise<void> => {
-    if (!metadata.endpoint_address || !continuousPing) return;
-
-    isPerformingPingRef.current = true;
-
-    try {
-      const url = `https://${metadata.endpoint_address}/health/status`;
-
-      // Measure ping delay
-      const startTime = performance.now();
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      const endTime = performance.now();
-      const delay = Math.round(endTime - startTime);
-      updatePingMetrics(delay);
-
-      if (response.ok) {
-        const data: HealthStatus = await response.json();
-        setHealthData(data);
-
-        if (data.server && data.database) {
-          setTestStatus("success");
-          setStatusMessage("Connection successful. All services are running.");
-        } else {
-          const issues = [];
-          if (!data.server) issues.push("Server");
-          if (!data.database) issues.push("Database");
-          setTestStatus("partial");
-          setStatusMessage(
-            `Connection issues detected: ${issues.join(", ")} not available.`
-          );
-        }
-      } else {
-        setTestStatus("error");
-        setStatusMessage(`Error: ${response.status} ${response.statusText}`);
-      }
-    } catch (error) {
+    if (isLoading) {
+      setTestStatus("loading");
+    } else if (error) {
       setTestStatus("error");
-      setStatusMessage(
-        `Connection failed: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    } finally {
-      isPerformingPingRef.current = false;
-      scheduleNextPing();
-    }
-  };
-
-  // Handle continuous ping
-  useEffect(() => {
-    if (continuousPing && metadata.endpoint_address) {
-      // Clear any existing timeout
-      if (pingTimeoutRef.current) {
-        window.clearTimeout(pingTimeoutRef.current);
-      }
-
-      // Start pinging if not already in progress
-      if (!isPerformingPingRef.current) {
-        performPing();
-      }
-    } else {
-      // Clear timeout when continuous ping is turned off
-      if (pingTimeoutRef.current) {
-        window.clearTimeout(pingTimeoutRef.current);
-        pingTimeoutRef.current = null;
+      setStatusMessage(error.message);
+    } else if (healthData) {
+      if (healthData.server && healthData.database) {
+        setTestStatus("success");
+        setStatusMessage("Connection successful. All services are running.");
+      } else {
+        setTestStatus("partial");
+        const issues = [];
+        if (!healthData.server) issues.push("Server");
+        if (!healthData.database) issues.push("Database");
+        setStatusMessage(
+          `Connection issues detected: ${issues.join(", ")} not available.`
+        );
       }
     }
-
-    return () => {
-      if (pingTimeoutRef.current) {
-        window.clearTimeout(pingTimeoutRef.current);
-      }
-    };
-  }, [continuousPing, metadata.endpoint_address]);
+  }, [healthData, isLoading, error]);
 
   const testConnection = async () => {
     if (!metadata.endpoint_address) {
@@ -230,62 +72,8 @@ export const GatewayDeviceConfigureForm = ({
 
     setTestStatus("loading");
     setPopoverOpen(false);
-
-    // Reset ping metrics
-    resetPingMetrics();
-
-    // Stop any existing continuous ping
-    setContinuousPing(false);
-
-    try {
-      // Construct the URL with http/https based on the environment
-      const url = `https://${metadata.endpoint_address}/health/status`;
-
-      // Measure ping delay
-      const startTime = performance.now();
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      const endTime = performance.now();
-      const delay = Math.round(endTime - startTime);
-      updatePingMetrics(delay);
-
-      if (response.ok) {
-        const data: HealthStatus = await response.json();
-        setHealthData(data);
-
-        if (data.server && data.database) {
-          setTestStatus("success");
-          setStatusMessage("Connection successful. All services are running.");
-
-          // Auto-start continuous ping on success
-          setContinuousPing(true);
-        } else {
-          setTestStatus("partial");
-          const issues = [];
-          if (!data.server) issues.push("Server");
-          if (!data.database) issues.push("Database");
-          setStatusMessage(
-            `Connection issues detected: ${issues.join(", ")} not available.`
-          );
-        }
-      } else {
-        setTestStatus("error");
-        setStatusMessage(`Error: ${response.status} ${response.statusText}`);
-      }
-    } catch (error) {
-      setTestStatus("error");
-      setStatusMessage(
-        `Connection failed: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
+    resetMetrics();
+    startMonitoring();
   };
 
   const getServiceStatusMessage = () => {
@@ -423,11 +211,7 @@ export const GatewayDeviceConfigureForm = ({
                   ...metadata,
                   endpoint_address: e.target.value,
                 });
-
-                // Stop continuous ping when host changes
-                if (continuousPing) {
-                  setContinuousPing(false);
-                }
+                stopMonitoring();
               }}
               className="flex-1"
             />
@@ -438,9 +222,7 @@ export const GatewayDeviceConfigureForm = ({
                 variant="secondary"
                 size="sm"
                 onClick={testConnection}
-                disabled={
-                  testStatus === "loading" || !metadata.endpoint_address
-                }
+                disabled={isLoading || !metadata.endpoint_address}
               >
                 Test Connection
               </Button>
