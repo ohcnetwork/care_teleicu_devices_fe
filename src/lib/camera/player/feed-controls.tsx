@@ -15,7 +15,7 @@ export default function CameraFeedControls({
   onRelativeMoved,
 }: {
   shortcutsDisabled?: boolean;
-  inlineView: boolean;
+  inlineView?: boolean;
   onRelativeMoved?: () => void;
 }) {
   const { ptzPrecision, setPtzPrecision } = useCameraFeed();
@@ -198,6 +198,18 @@ export default function CameraFeedControls({
       </div>
     );
   }
+
+  return (
+    <div className="grid grid-cols-3">
+      <div />
+      <div>
+        <div className="grid grid-cols-3 gap-2">{controls.position}</div>
+      </div>
+      <div className="flex flex-col gap-2 justify-center items-center">
+        {controls.zoom}
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex items-center justify-between gap-3">
