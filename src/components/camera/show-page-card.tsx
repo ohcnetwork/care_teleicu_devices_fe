@@ -23,10 +23,7 @@ import {
   ExternalLink,
   Move,
   Pencil,
-  Star,
-  StarOff,
   EyeIcon,
-  TargetIcon,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -171,9 +168,6 @@ const CameraPositionPresets = ({
 
   // Add state for the preset being edited
   const [presetToEdit, setPresetToEdit] = useState<PositionPreset | null>(null);
-  const [presetToDefault, setPresetToDefault] = useState<PositionPreset | null>(
-    null
-  );
   const [editPopoverOpen, setEditPopoverOpen] = useState(false);
   const [editPresetName, setEditPresetName] = useState("");
   const [editSelectedLocation, setEditSelectedLocation] =
@@ -269,17 +263,15 @@ const CameraPositionPresets = ({
     },
   });
 
-  const setDefaultMutation = useMutation({
-    mutationFn: mutate(cameraPositionPresetApi.set_default, {
-      pathParams: { cameraId: device.id, presetId: presetToDefault?.id || "" },
-    }),
+  const { mutate: setAsDefault } = useMutation({
+    mutationFn: (presetId: string) =>
+      mutate(cameraPositionPresetApi.set_default, {
+        pathParams: { cameraId: device.id, presetId },
+      })({}),
     onSuccess: () => {
-      // Refresh the presets list after update
       queryClient.invalidateQueries({
         queryKey: ["camera-position-presets", device.id],
       });
-
-      setPresetToDefault(null);
     },
   });
 
@@ -291,12 +283,6 @@ const CameraPositionPresets = ({
     if (presetToDelete) {
       deletePresetMutation.mutate(presetToDelete.id);
     }
-  };
-
-  // Add handler for set default action
-  const handleSetDefault = (preset: PositionPreset) => {
-    setPresetToDefault(preset);
-    setDefaultMutation.mutate({});
   };
 
   // Add handler for move action
@@ -538,7 +524,7 @@ const CameraPositionPresets = ({
                                     <Switch
                                       checked={preset.is_default}
                                       onCheckedChange={() =>
-                                        handleSetDefault(preset)
+                                        setAsDefault(preset.id)
                                       }
                                       disabled={preset.is_default}
                                       className="data-[state=checked]:bg-primary-500"
