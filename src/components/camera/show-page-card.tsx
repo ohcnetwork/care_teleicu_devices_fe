@@ -87,7 +87,7 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
         <CameraFeedPlayer />
         <CameraFeedControls inlineView />
       </div>
-      <div className="mt-2">
+      <div className="mt-2 sm:hidden">
         <CameraFeedControls />
       </div>
       {!!status && (
