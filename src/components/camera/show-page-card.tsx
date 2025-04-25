@@ -80,6 +80,9 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
         <CameraFeedPlayer />
         <CameraFeedControls inlineView />
       </div>
+      <div className="mt-2">
+        <CameraFeedControls />
+      </div>
       {!!status && (
         <div className="mt-2 flex flex-wrap gap-2">
           <div className="text-xs bg-gray-100 px-2 py-1 rounded-md flex items-center gap-1.5">
