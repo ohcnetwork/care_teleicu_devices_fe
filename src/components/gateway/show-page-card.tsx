@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import {
   NetworkMetrics,
   PingMetrics,
@@ -9,7 +9,6 @@ import {
   XCircle,
   AlertTriangle,
   Loader2,
-  RefreshCw,
   Pause,
   Play,
 } from "lucide-react";
@@ -25,11 +24,7 @@ import {
   ReferenceArea,
 } from "recharts";
 import PluginComponent from "@/components/common/plugin-component";
-
-interface HealthStatus {
-  server: boolean;
-  database: boolean;
-}
+import { useGatewayHealthCheck } from "@/lib/device/hooks/useGatewayHealthCheck";
 
 interface Props {
   device: {
@@ -40,17 +35,8 @@ interface Props {
   };
 }
 
-interface PingDataPoint {
-  timestamp: number;
-  ping: number;
-}
-
-const MAX_PING_SAMPLES = 10;
-const MAX_CHART_POINTS = 50;
-
 type ConnectionStatus = "idle" | "checking" | "connected" | "partial" | "error";
 
-// Add these constants for ping quality thresholds
 const PING_THRESHOLDS = {
   EXCELLENT: 100,
   GOOD: 200,
@@ -58,231 +44,30 @@ const PING_THRESHOLDS = {
 };
 
 export const GatewayShowPageCard = ({ device }: Props) => {
-  // Connection state
-  const [connectionStatus, setConnectionStatus] =
-    useState<ConnectionStatus>("idle");
-  const [healthData, setHealthData] = useState<HealthStatus | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const {
+    healthData,
+    isLoading,
+    error,
+    pingHistory,
+    metrics,
+    isMonitoring,
+    startMonitoring,
+    stopMonitoring,
+  } = useGatewayHealthCheck(device.care_metadata.endpoint_address);
 
-  // Monitoring state
-  const [isMonitoring, setIsMonitoring] = useState(false);
-  const [metrics, setMetrics] = useState<PingMetrics>({
-    current: 0,
-    min: Number.MAX_VALUE,
-    max: 0,
-    avg: 0,
-    jitter: 0,
-    samples: 0,
-  });
-  const [pingHistory, setPingHistory] = useState<PingDataPoint[]>([]);
-
-  // Refs for ping monitoring
-  const pingHistoryRef = useRef<number[]>([]);
-  const pingTimeout = useRef<number | null>(null);
-  const isPerformingPing = useRef(false);
-
-  // Calculate jitter from ping history
-  const calculateJitter = (times: number[]): number => {
-    if (times.length <= 1) return 0;
-    const mean = times.reduce((sum, time) => sum + time, 0) / times.length;
-    const variance =
-      times.reduce((sum, time) => sum + Math.pow(time - mean, 2), 0) /
-      times.length;
-    return Math.round(Math.sqrt(variance));
-  };
-
-  // Update metrics with new ping time
-  const updateMetrics = (delay: number) => {
-    // Update ping history for jitter calculation
-    pingHistoryRef.current.push(delay);
-    if (pingHistoryRef.current.length > MAX_PING_SAMPLES) {
-      pingHistoryRef.current.shift();
-    }
-
-    // Update chart data
-    setPingHistory((prev) => {
-      const newHistory = [...prev, { timestamp: Date.now(), ping: delay }];
-      if (newHistory.length > MAX_CHART_POINTS) {
-        return newHistory.slice(-MAX_CHART_POINTS);
-      }
-      return newHistory;
-    });
-
-    const jitter = calculateJitter(pingHistoryRef.current);
-
-    setMetrics((prev) => ({
-      current: delay,
-      min: Math.min(prev.min, delay),
-      max: Math.max(prev.max, delay),
-      avg: Math.round((prev.avg * prev.samples + delay) / (prev.samples + 1)),
-      jitter,
-      samples: prev.samples + 1,
-    }));
-  };
-
-  // Reset metrics
-  const resetMetrics = () => {
-    setMetrics({
-      current: 0,
-      min: Number.MAX_VALUE,
-      max: 0,
-      avg: 0,
-      jitter: 0,
-      samples: 0,
-    });
-    pingHistoryRef.current = [];
-    setPingHistory([]);
-  };
-
-  // Check gateway health
-  const checkHealth = async () => {
-    if (!device.care_metadata.endpoint_address) return;
-
-    setConnectionStatus("checking");
-    setErrorMessage("");
-
-    try {
-      const url = `https://${device.care_metadata.endpoint_address}/health/status`;
-      const startTime = performance.now();
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { Accept: "application/json" },
-      });
-
-      const endTime = performance.now();
-      const delay = Math.round(endTime - startTime);
-      updateMetrics(delay);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: HealthStatus = await response.json();
-      setHealthData(data);
-
-      if (data.server && data.database) {
-        setConnectionStatus("connected");
-        setIsMonitoring(true);
-        resetMetrics();
-      } else {
-        setConnectionStatus("partial");
-      }
-    } catch (error) {
-      setConnectionStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : String(error));
-    }
-  };
-
-  // Perform a single ping
-  const performPing = async () => {
-    if (!device.care_metadata.endpoint_address || !isMonitoring) return;
-
-    isPerformingPing.current = true;
-
-    try {
-      const url = `https://${device.care_metadata.endpoint_address}/health/status`;
-      const startTime = performance.now();
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { Accept: "application/json" },
-      });
-
-      const endTime = performance.now();
-      const delay = Math.round(endTime - startTime);
-      updateMetrics(delay);
-
-      if (response.ok) {
-        const data: HealthStatus = await response.json();
-        setHealthData(data);
-
-        if (data.server && data.database) {
-          setConnectionStatus("connected");
-        } else {
-          setConnectionStatus("partial");
-        }
-      } else {
-        setConnectionStatus("error");
-        setErrorMessage(`Error: ${response.status} ${response.statusText}`);
-      }
-    } catch (error) {
-      setConnectionStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : String(error));
-    } finally {
-      isPerformingPing.current = false;
-      if (isMonitoring) {
-        pingTimeout.current = window.setTimeout(performPing, 500);
-      }
-    }
-  };
-
-  // Handle continuous ping
   useEffect(() => {
-    if (isMonitoring && device.care_metadata.endpoint_address) {
-      // Clear any existing timeout
-      if (pingTimeout.current) {
-        window.clearTimeout(pingTimeout.current);
-      }
-
-      // Start pinging if not already in progress
-      if (!isPerformingPing.current) {
-        performPing();
-      }
-    } else {
-      // Clear timeout when monitoring is turned off
-      if (pingTimeout.current) {
-        window.clearTimeout(pingTimeout.current);
-        pingTimeout.current = null;
-      }
+    if (!isMonitoring) {
+      startMonitoring();
     }
+  }, []);
 
-    // Cleanup function to stop monitoring when component unmounts
-    return () => {
-      if (pingTimeout.current) {
-        window.clearTimeout(pingTimeout.current);
-        pingTimeout.current = null;
-      }
-      isPerformingPing.current = false;
-    };
-  }, [isMonitoring, device.care_metadata.endpoint_address]);
-
-  // Start monitoring
-  const startMonitoring = async () => {
-    setIsMonitoring(true);
-    resetMetrics();
+  const getConnectionStatus = (): ConnectionStatus => {
+    if (isLoading) return "checking";
+    if (error) return "error";
+    if (!healthData) return "idle";
+    if (healthData.server && healthData.database) return "connected";
+    return "partial";
   };
-
-  // Stop monitoring
-  const stopMonitoring = () => {
-    setIsMonitoring(false);
-    if (pingTimeout.current) {
-      window.clearTimeout(pingTimeout.current);
-      pingTimeout.current = null;
-    }
-  };
-
-  // Refresh connection and metrics
-  const refresh = async () => {
-    stopMonitoring();
-    resetMetrics();
-    await checkHealth();
-  };
-
-  // Initial health check
-  useEffect(() => {
-    checkHealth();
-
-    // Cleanup function to stop monitoring when component unmounts or endpoint changes
-    return () => {
-      if (pingTimeout.current) {
-        window.clearTimeout(pingTimeout.current);
-        pingTimeout.current = null;
-      }
-      isPerformingPing.current = false;
-      setIsMonitoring(false);
-    };
-  }, [device.care_metadata.endpoint_address]);
 
   const getStatusMessage = () => {
     if (!healthData) return "Service status unknown";
@@ -299,7 +84,8 @@ export const GatewayShowPageCard = ({ device }: Props) => {
   };
 
   const getStatusIcon = () => {
-    switch (connectionStatus) {
+    const status = getConnectionStatus();
+    switch (status) {
       case "checking":
         return <Loader2 className="h-5 w-5 text-gray-500 animate-spin" />;
       case "connected":
@@ -371,13 +157,13 @@ export const GatewayShowPageCard = ({ device }: Props) => {
               </div>
 
               {/* Monitoring Controls */}
-              {connectionStatus !== "idle" && (
+              {getConnectionStatus() !== "idle" && (
                 <div className="flex items-center gap-2 shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={isMonitoring ? stopMonitoring : startMonitoring}
-                    disabled={connectionStatus !== "connected"}
+                    disabled={getConnectionStatus() !== "connected"}
                   >
                     {isMonitoring ? (
                       <>
@@ -397,21 +183,12 @@ export const GatewayShowPageCard = ({ device }: Props) => {
                       </>
                     )}
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={refresh}
-                    disabled={connectionStatus === "checking"}
-                  >
-                    <RefreshCw className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Refresh</span>
-                  </Button>
                 </div>
               )}
             </div>
 
             {/* Health Status */}
-            {connectionStatus !== "idle" && (
+            {getConnectionStatus() !== "idle" && (
               <div className="text-sm">
                 <p className="font-medium text-gray-700">
                   {getStatusMessage()}:
@@ -432,16 +209,16 @@ export const GatewayShowPageCard = ({ device }: Props) => {
                     Database: {healthData?.database ? "Online" : "Offline"}
                   </li>
                 </ul>
-                {connectionStatus === "error" && (
+                {error && (
                   <p className="mt-1 text-red-600 font-medium">
-                    {errorMessage}
+                    {error instanceof Error ? error.message : String(error)}
                   </p>
                 )}
               </div>
             )}
 
             {/* Network Metrics and Chart */}
-            {connectionStatus !== "idle" && metrics.samples > 0 && (
+            {getConnectionStatus() !== "idle" && metrics.samples > 0 && (
               <div className="space-y-4">
                 <NetworkMetrics metrics={metrics} />
 
