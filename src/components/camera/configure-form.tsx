@@ -40,12 +40,6 @@ export const CameraDeviceConfigureForm = ({
     }
   }, [gatewayId]);
 
-  useEffect(() => {
-    if (!metadata.type) {
-      handleChange("type", "ONVIF");
-    }
-  }, [metadata.type]);
-
   const gatewayDevices = data?.results ?? [];
   const gateway = gatewayDevices.find((device) => device.id === gatewayId);
 
@@ -53,12 +47,8 @@ export const CameraDeviceConfigureForm = ({
     <PluginComponent>
       <div className="space-y-4">
         <div>
-          <Label className="mb-2">
-            Type
-            <span className="text-red-500">*</span>
-          </Label>
+          <Label className="mb-2">Type</Label>
           <Select
-            defaultValue={"ONVIF"}
             value={metadata.type}
             onValueChange={(value) => handleChange("type", value)}
           >
