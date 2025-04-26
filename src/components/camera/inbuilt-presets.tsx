@@ -48,7 +48,7 @@ export const InbuiltPresets = ({ device }: { device: CameraDevice }) => {
     <div className="w-full">
       {Object.keys(data || {}).length === 0 ? (
         <div className="bg-gray-50 rounded-md p-6 text-center text-gray-500">
-          No position presets found for this camera
+          No inbuilt presets found for this camera
         </div>
       ) : (
         <div className="space-y-8">
