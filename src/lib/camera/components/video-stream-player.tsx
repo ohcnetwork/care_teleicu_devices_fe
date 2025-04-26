@@ -105,6 +105,14 @@ export const VideoStreamPlayer = ({
     }
   };
 
+  const reconnect = () => {
+    console.log("Reconnecting stream...");
+    cleanup();
+    setTimeout(() => {
+      startMSE(); // restart fresh
+    }, 200);
+  };
+
   const startMSE = () => {
     try {
       if (!playerRef.current || !streamUrl) return;
@@ -157,8 +165,21 @@ export const VideoStreamPlayer = ({
     } else {
       startMSE();
     }
+    let lastTime = 0;
+
+    const freezeChecker = setInterval(() => {
+      if (playerRef.current) {
+        if (playerRef.current.currentTime === lastTime) {
+          console.log("Video frozen detected! Trying reconnect...");
+          reconnect();
+        }
+        lastTime = playerRef.current.currentTime;
+      }
+    }, 5000);
+
     return () => {
       cleanup();
+      clearInterval(freezeChecker);
     };
   }, [streamUrl]);
 
