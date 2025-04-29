@@ -1,4 +1,4 @@
-import { DeviceListResponse } from "@/lib/device/types";
+import { DeviceDetail, DeviceListResponse } from "@/lib/device/types";
 import { apiRoutes, HttpMethod } from "@/lib/request";
 
 export default apiRoutes({
@@ -6,5 +6,11 @@ export default apiRoutes({
     path: "/api/v1/facility/{facilityId}/device/",
     method: HttpMethod.GET,
     TResponse: {} as DeviceListResponse,
+  },
+  associateEncounter: {
+    path: "/api/v1/facility/{facilityId}/device/{deviceId}/associate_encounter/",
+    method: HttpMethod.POST,
+    TResponse: {} as DeviceDetail,
+    TBody: {} as { encounter: string | null },
   },
 });
