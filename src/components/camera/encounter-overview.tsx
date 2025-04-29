@@ -133,6 +133,9 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
                     onRelativeMoved={() => setIsAwayFromPreset(true)}
                   />
                 </div>
+                <div className="mt-2 sm:hidden">
+                  <CameraFeedControls />
+                </div>
               </CameraFeedProvider>
             </TabsContent>
           ))}
