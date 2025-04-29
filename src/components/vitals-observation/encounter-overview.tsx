@@ -7,12 +7,7 @@ import { VitalsObservationMonitor } from "@/lib/vitals-observation/hl7-monitor/v
 import deviceApi from "@/lib/device/deviceApi";
 import { mutate, query } from "@/lib/request";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertTriangle,
-  SettingsIcon,
-  LinkIcon,
-  ActivityIcon,
-} from "lucide-react";
+import { AlertTriangle, SettingsIcon, ActivityIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { navigate, usePathParams } from "raviger";
 
@@ -52,18 +47,19 @@ export const VitalsObservationEncounterOverview = ({ encounter }: Props) => {
 
   if (
     isLoadingEncounterDevices ||
-    isLoadingLocationDevices ||
     !encounterDevices ||
-    !locationDevices
+    (!!encounter.current_location?.id &&
+      (isLoadingLocationDevices || !locationDevices))
   ) {
     return <Skeleton className="h-24 md:h-48 w-full" />;
   }
 
   const encounterDeviceIds = encounterDevices.map((device) => device.id);
 
-  const encounterLinkableDevices = locationDevices.filter(
-    (device) => !encounterDeviceIds.includes(device.id)
-  );
+  const encounterLinkableDevices =
+    locationDevices?.filter(
+      (device) => !encounterDeviceIds.includes(device.id)
+    ) ?? [];
 
   if (encounterDevices.length === 0 && encounterLinkableDevices.length === 0) {
     return null;
@@ -170,7 +166,8 @@ const LinkableDeviceCallout = ({
             <strong className="font-semibold">
               {device.user_friendly_name || device.registered_name}
             </strong>{" "}
-            ({device.care_metadata.type}) is available in this location.
+            ({device.care_metadata.type}) is available in this encounters
+            location.
           </p>
           <p>Do you want to associate it to this encounter?</p>
         </span>
