@@ -128,13 +128,17 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
               <CameraFeedProvider device={camera}>
                 <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
                   <CameraFeedPlayer />
-                  <CameraFeedControls
-                    inlineView
-                    onRelativeMoved={() => setIsAwayFromPreset(true)}
-                  />
+                  <div className="hidden sm:block">
+                    <CameraFeedControls
+                      inlineView
+                      onRelativeMoved={() => setIsAwayFromPreset(true)}
+                    />
+                  </div>
                 </div>
                 <div className="mt-2 sm:hidden">
-                  <CameraFeedControls />
+                  <CameraFeedControls 
+                    onRelativeMoved={() => setIsAwayFromPreset(true)}
+                  />
                 </div>
               </CameraFeedProvider>
             </TabsContent>
