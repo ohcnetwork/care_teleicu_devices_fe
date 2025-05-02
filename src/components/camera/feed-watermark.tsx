@@ -1,18 +1,17 @@
-interface WatermarkProps {
-  username?: string;
-}
+import { useAtom } from "jotai";
+import { userAtom } from "@/state/user-atom";
 
-export const CameraFeedWatermark = ({ username }: WatermarkProps) => {
-  const displayName = username || "defaultuser";
+export const CameraFeedWatermark = () => {
+  const [user] = useAtom(userAtom);
+  if (!user) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none select-none">
       <Watermark className="left-1/3 top-1/3 -translate-x-1/2 -translate-y-1/2">
-        {displayName}
+        {user.username}
       </Watermark>
-
       <Watermark className="bottom-1/3 right-1/3 translate-x-1/2 translate-y-1/2">
-        {displayName}
+        {user.username}
       </Watermark>
     </div>
   );

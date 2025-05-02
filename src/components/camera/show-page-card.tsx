@@ -67,8 +67,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAtom } from "jotai";
-import { userAtom } from "@/state/user-atom";
 
 export const CameraShowPageCard = ({
   device,
@@ -77,30 +75,22 @@ export const CameraShowPageCard = ({
   device: CameraDevice;
   facilityId: string;
 }) => {
-  const [user] = useAtom(userAtom);
-  const careUsername = user.username ?? "";
   return (
     <PluginComponent>
-      <CameraStream device={device} username={careUsername} />
+      <CameraStream device={device} />
       <CameraPositionPresets device={device} facilityId={facilityId} />
     </PluginComponent>
   );
 };
 
-const CameraStream = ({
-  device,
-  username,
-}: {
-  device: CameraDevice;
-  username: string;
-}) => {
+const CameraStream = ({ device }: { device: CameraDevice }) => {
   const { data: status, isError, refetch } = useCameraStatus(device);
 
   return (
     <CameraFeedProvider device={device}>
       <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
         <CameraFeedPlayer />
-        <CameraFeedWatermark username={username} />
+        <CameraFeedWatermark />
         <CameraFeedControls inlineView />
       </div>
       <div className="mt-2 sm:hidden">
