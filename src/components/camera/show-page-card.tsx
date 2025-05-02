@@ -67,6 +67,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAtom } from "jotai";
+import { userAtom } from "@/state/user-atom";
 
 export const CameraShowPageCard = ({
   device,
@@ -75,7 +77,8 @@ export const CameraShowPageCard = ({
   device: CameraDevice;
   facilityId: string;
 }) => {
-  const careUsername = window.CARE_USERNAME ?? "";
+  const [user] = useAtom(userAtom);
+  const careUsername = user.username ?? "";
   return (
     <PluginComponent>
       <CameraStream device={device} username={careUsername} />
