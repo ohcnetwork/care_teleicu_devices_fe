@@ -6,6 +6,7 @@ import {
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import CameraFeedControls from "@/lib/camera/player/feed-controls";
 import CameraFeedPlayer from "@/lib/camera/player/feed-player";
+import CameraFeedWatermark from "@/components/camera/feed-watermark";
 import { CameraDevice, PositionPreset, PTZPayload } from "@/lib/camera/types";
 import { query, mutate } from "@/lib/request";
 import { Link } from "raviger";
@@ -74,21 +75,29 @@ export const CameraShowPageCard = ({
   device: CameraDevice;
   facilityId: string;
 }) => {
+  const careUsername = window.CARE_USERNAME ?? "";
   return (
     <PluginComponent>
-      <CameraStream device={device} />
+      <CameraStream device={device} username={careUsername} />
       <CameraPositionPresets device={device} facilityId={facilityId} />
     </PluginComponent>
   );
 };
 
-const CameraStream = ({ device }: { device: CameraDevice }) => {
+const CameraStream = ({
+  device,
+  username,
+}: {
+  device: CameraDevice;
+  username: string;
+}) => {
   const { data: status, isError, refetch } = useCameraStatus(device);
 
   return (
     <CameraFeedProvider device={device}>
       <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
         <CameraFeedPlayer />
+        <CameraFeedWatermark username={username} />
         <CameraFeedControls inlineView />
       </div>
       <div className="mt-2 sm:hidden">
