@@ -89,7 +89,9 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
     <CameraFeedProvider device={device}>
       <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
         <CameraFeedPlayer />
-        <CameraFeedControls inlineView />
+        <div className="hidden sm:block">
+          <CameraFeedControls inlineView />
+        </div>
       </div>
       <div className="mt-2 sm:hidden">
         <CameraFeedControls />
