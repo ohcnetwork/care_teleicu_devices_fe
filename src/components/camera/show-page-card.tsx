@@ -29,6 +29,7 @@ import {
   ChevronUp,
   ChevronDown,
   EyeIcon,
+  CheckCheck,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -46,7 +47,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LocationSearch } from "@/components/common/location-search";
 import { LocationList } from "@/lib/types/location";
 import useCameraStatus from "@/lib/camera/useCameraStatus";
@@ -196,6 +197,7 @@ const CameraPositionPresets = ({
   const [presetToEdit, setPresetToEdit] = useState<PositionPreset | null>(null);
   const [editPopoverOpen, setEditPopoverOpen] = useState(false);
   const [editPresetName, setEditPresetName] = useState("");
+  const [changeLocation, setChangeLocation] = useState(false);
   const [editSelectedLocation, setEditSelectedLocation] =
     useState<LocationList | null>(null);
   const [editPTZ, setEditPTZ] = useState<PTZPayload | null>(null);
@@ -408,6 +410,11 @@ const CameraPositionPresets = ({
       locationMap.get(locationId)?.presets.push(preset);
     }
   });
+
+  useEffect(() => {
+    const timer = setTimeout(() => setChangeLocation(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Add location groups to the groupedPresets array
   locationMap.forEach((group) => {
@@ -665,7 +672,13 @@ const CameraPositionPresets = ({
                                   </div>
                                   <hr className="my-4 bg-gray-200 h-px" />
                                   <div className="space-y-2">
-                                    <Label>Current PTZ Position</Label>
+                                    <div className="flex gap-2">
+                                      <Label>Current PTZ Position</Label>
+                                      {changeLocation ? (
+                                        <CheckCheck className="size-3 text-green-300" />
+                                      ) : null}
+                                    </div>
+
                                     <div className="grid grid-cols-3 gap-2">
                                       <div className="space-y-1">
                                         <Label className="text-xs text-gray-500">
@@ -705,6 +718,7 @@ const CameraPositionPresets = ({
                                       onClick={() => {
                                         if (cameraStatus) {
                                           setEditPTZ(cameraStatus.position);
+                                          setChangeLocation(true);
                                         }
                                       }}
                                       disabled={
