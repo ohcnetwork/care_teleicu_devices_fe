@@ -199,7 +199,7 @@ const CameraPositionPresets = ({
   const [editSelectedLocation, setEditSelectedLocation] =
     useState<LocationList | null>(null);
   const [editPTZ, setEditPTZ] = useState<PTZPayload | null>(null);
-  const [changeLocation, setChangeLocation] = useState(false);
+  const [ptzUpdated, setPtzUpdated] = useState(false);
   // Fetch presets - the API now returns location data directly
   const { data, isLoading } = useQuery({
     queryKey: ["camera-position-presets", device.id],
@@ -348,7 +348,7 @@ const CameraPositionPresets = ({
     setEditSelectedLocation(preset.location);
     setEditPTZ(preset.ptz);
     setEditPopoverOpen(true);
-    setChangeLocation(false);
+    setPtzUpdated(false);
   };
 
   // Add handler for update preset
@@ -666,9 +666,7 @@ const CameraPositionPresets = ({
                                   </div>
                                   <hr className="my-4 bg-gray-200 h-px" />
                                   <div className="space-y-2">
-                                    <div className="flex gap-2">
-                                      <Label>Current PTZ Position</Label>
-                                    </div>
+                                    <Label>Current PTZ Position</Label>
 
                                     <div className="grid grid-cols-3 gap-2">
                                       <div className="space-y-1">
@@ -709,7 +707,7 @@ const CameraPositionPresets = ({
                                       onClick={() => {
                                         if (cameraStatus) {
                                           setEditPTZ(cameraStatus.position);
-                                          setChangeLocation(true);
+                                          setPtzUpdated(true);
                                         }
                                       }}
                                       disabled={
@@ -718,7 +716,7 @@ const CameraPositionPresets = ({
                                       }
                                     >
                                       <Move className="size-3" />
-                                      {changeLocation ? (
+                                      {ptzUpdated ? (
                                         <p>Updated</p>
                                       ) : (
                                         <p>
