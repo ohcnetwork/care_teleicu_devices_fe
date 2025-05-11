@@ -91,7 +91,9 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
       <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
         <CameraFeedPlayer />
         <CameraFeedWatermark />
-        <CameraFeedControls inlineView />
+        <div className="hidden sm:block">
+          <CameraFeedControls inlineView />
+        </div>
       </div>
       <div className="mt-2 sm:hidden">
         <CameraFeedControls />
@@ -199,7 +201,7 @@ const CameraPositionPresets = ({
   const [editSelectedLocation, setEditSelectedLocation] =
     useState<LocationList | null>(null);
   const [editPTZ, setEditPTZ] = useState<PTZPayload | null>(null);
-
+  const [ptzUpdated, setPtzUpdated] = useState(false);
   // Fetch presets - the API now returns location data directly
   const { data, isLoading } = useQuery({
     queryKey: ["camera-position-presets", device.id],
@@ -348,6 +350,7 @@ const CameraPositionPresets = ({
     setEditSelectedLocation(preset.location);
     setEditPTZ(preset.ptz);
     setEditPopoverOpen(true);
+    setPtzUpdated(false);
   };
 
   // Add handler for update preset
@@ -666,6 +669,7 @@ const CameraPositionPresets = ({
                                   <hr className="my-4 bg-gray-200 h-px" />
                                   <div className="space-y-2">
                                     <Label>Current PTZ Position</Label>
+
                                     <div className="grid grid-cols-3 gap-2">
                                       <div className="space-y-1">
                                         <Label className="text-xs text-gray-500">
@@ -705,6 +709,7 @@ const CameraPositionPresets = ({
                                       onClick={() => {
                                         if (cameraStatus) {
                                           setEditPTZ(cameraStatus.position);
+                                          setPtzUpdated(true);
                                         }
                                       }}
                                       disabled={
@@ -713,7 +718,13 @@ const CameraPositionPresets = ({
                                       }
                                     >
                                       <Move className="size-3" />
-                                      Update with Camera's Current Position
+                                      {ptzUpdated ? (
+                                        <p>Updated</p>
+                                      ) : (
+                                        <p>
+                                          Update with Camera's Current Position
+                                        </p>
+                                      )}
                                     </Button>
                                     <hr className="my-4 bg-gray-200 h-px" />
                                   </div>
