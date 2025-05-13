@@ -67,13 +67,19 @@ export const CameraDeviceConfigureForm = ({
             value={gatewayId}
             onValueChange={(value) => handleChange("gateway", value)}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full truncate">
               <SelectValue placeholder="Select gateway device...">
-                {gateway?.registered_name || gateway?.user_friendly_name}{" "}
-                <span className="text-gray-500">
-                  (Endpoint Address:{" "}
-                  {(gateway?.care_metadata.endpoint_address as string) || "--"})
-                </span>
+                <div className="flex flex-col w-full gap-0 md:flex-row md:gap-2 truncate">
+                  <span className="truncate">
+                    {gateway?.registered_name || gateway?.user_friendly_name}
+                  </span>
+                  <span className="text-sm text-gray-500 truncate">
+                    (Endpoint:{" "}
+                    {(gateway?.care_metadata.endpoint_address as string) ||
+                      "--"}
+                    )
+                  </span>
+                </div>
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -88,16 +94,18 @@ export const CameraDeviceConfigureForm = ({
               ) : (
                 gatewayDevices.map((device) => (
                   <SelectItem key={device.id} value={device.id}>
-                    <p className="text-sm">
-                      {device.registered_name || device.user_friendly_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Endpoint Address:{" "}
-                      <span className="font-medium">
-                        {(device.care_metadata.endpoint_address as string) ||
-                          "--"}
-                      </span>
-                    </p>
+                    <div className="flex flex-col">
+                      <p className="text-sm truncate">
+                        {device.registered_name || device.user_friendly_name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        Endpoint:{" "}
+                        <span className="font-medium">
+                          {(device.care_metadata.endpoint_address as string) ||
+                            "--"}
+                        </span>
+                      </p>
+                    </div>
                   </SelectItem>
                 ))
               )}
