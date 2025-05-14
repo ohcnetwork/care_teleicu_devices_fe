@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mutate } from "@/lib/request";
-import { HttpMethod } from "@/lib/request";
+
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import { PositionPresetWriteRequest } from "@/lib/camera/types";
+import { mutate } from "@/lib/request";
+import { HttpMethod } from "@/lib/request";
 
 interface ReorderItem {
   id: string;
@@ -63,7 +64,7 @@ export function useReorderMutation<T extends ReorderItem>({
 export function handleReorder<T extends ReorderItem>(
   item: T,
   direction: "up" | "down",
-  items: T[]
+  items: T[],
 ): { items: Array<{ id: string; sort_index: number; item: T }> } | null {
   const currentIndex = items.findIndex((i) => i.id === item.id);
   if (currentIndex === -1) return null;

@@ -1,13 +1,15 @@
 import { ActivityIcon, CctvIcon, ServerIcon } from "lucide-react";
-import routes from "./routes";
-import { GatewayDeviceConfigureForm } from "@/components/gateway/configure-form";
+
 import { CameraDeviceConfigureForm } from "@/components/camera/configure-form";
-import { VitalsObservationConfigureForm } from "@/components/vitals-observation/configure-form";
-import { GatewayShowPageCard } from "@/components/gateway/show-page-card";
-import { CameraShowPageCard } from "@/components/camera/show-page-card";
-import { VitalsObservationShowPageCard } from "@/components/vitals-observation/show-page-card";
 import { CameraEncounterOverview } from "@/components/camera/encounter-overview";
+import { CameraShowPageCard } from "@/components/camera/show-page-card";
+import { GatewayDeviceConfigureForm } from "@/components/gateway/configure-form";
+import { GatewayShowPageCard } from "@/components/gateway/show-page-card";
+import { VitalsObservationConfigureForm } from "@/components/vitals-observation/configure-form";
 import { VitalsObservationEncounterOverview } from "@/components/vitals-observation/encounter-overview";
+import { VitalsObservationShowPageCard } from "@/components/vitals-observation/show-page-card";
+
+import routes from "./routes";
 
 const manifest = {
   plugin: "care-gateway-device",

@@ -1,5 +1,5 @@
 import { PTZPayload } from "@/lib/camera/types";
-import { apiRoutes, HttpMethod } from "@/lib/request";
+import { HttpMethod, apiRoutes } from "@/lib/request";
 
 export interface GetStatusResponse {
   position: PTZPayload;

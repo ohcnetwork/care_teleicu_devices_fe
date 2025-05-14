@@ -1,15 +1,18 @@
-import { useState, ReactNode } from "react";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon } from "lucide-react";
+import { ReactNode, useState } from "react";
+
+import { cn } from "@/lib/utils";
+
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+
 import { CardListSkeleton } from "@/components/common/skeleton-loading";
-import { cn } from "@/lib/utils";
-import { ChevronDownIcon } from "lucide-react";
 
 export interface AutocompleteOption {
   id: string;
@@ -69,7 +72,7 @@ export function Autocomplete<T extends AutocompleteOption>({
         <div
           className={cn(
             "w-full h-9 px-3 rounded-md border border-gray-200 bg-white text-sm flex items-center justify-between cursor-pointer shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950",
-            className
+            className,
           )}
           role="combobox"
           aria-expanded={open}
@@ -81,7 +84,7 @@ export function Autocomplete<T extends AutocompleteOption>({
       <PopoverContent
         className={cn(
           "w-[var(--radix-popover-trigger-width)] p-0",
-          popoverClassName
+          popoverClassName,
         )}
       >
         <div className="pt-1">

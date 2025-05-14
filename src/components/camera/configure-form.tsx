@@ -1,6 +1,12 @@
+import { Eye, EyeOff } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import useDevices from "@/lib/device/hooks/useDevices";
+import { ConfigureFormProps } from "@/lib/types/common";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useDevices from "@/lib/device/hooks/useDevices";
 import {
   Select,
   SelectContent,
@@ -8,10 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ConfigureFormProps } from "@/lib/types/common";
-import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import PluginComponent from "@/components/common/plugin-component";
 
 export const CameraDeviceConfigureForm = ({

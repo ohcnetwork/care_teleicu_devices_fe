@@ -1,36 +1,38 @@
-import { TableSkeleton } from "@/components/common/skeleton-loading";
+import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  EyeIcon,
+  Move,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+import { Link } from "raviger";
+import { useState } from "react";
+
 import {
   CameraFeedProvider,
   useCameraFeed,
 } from "@/lib/camera/camera-feed-context";
+import cameraActionApi from "@/lib/camera/cameraActionApi";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import CameraFeedControls from "@/lib/camera/player/feed-controls";
 import CameraFeedPlayer from "@/lib/camera/player/feed-player";
-import CameraFeedWatermark from "@/components/camera/feed-watermark";
-import { CameraDevice, PositionPreset, PTZPayload } from "@/lib/camera/types";
-import { query, mutate } from "@/lib/request";
-import { Link } from "raviger";
-import { useQuery } from "@tanstack/react-query";
+import { CameraDevice, PTZPayload, PositionPreset } from "@/lib/camera/types";
+import useCameraStatus from "@/lib/camera/useCameraStatus";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Plus,
-  Trash2,
-  ExternalLink,
-  Move,
-  Pencil,
-  ChevronUp,
-  ChevronDown,
-  EyeIcon,
-} from "lucide-react";
+  handleReorder,
+  useReorderMutation,
+} from "@/lib/hooks/useReorderMutation";
+import { mutate, query } from "@/lib/request";
+import { HttpMethod } from "@/lib/request";
+import { LocationList } from "@/lib/types/location";
+import { stringifyNestedObject } from "@/lib/utils";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,32 +43,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { LocationSearch } from "@/components/common/location-search";
-import { LocationList } from "@/lib/types/location";
-import useCameraStatus from "@/lib/camera/useCameraStatus";
-import { stringifyNestedObject } from "@/lib/utils";
-import cameraActionApi from "@/lib/camera/cameraActionApi";
-import { Label } from "@/components/ui/label";
-import { AlertTriangle } from "lucide-react";
-import PluginComponent from "@/components/common/plugin-component";
-import { HttpMethod } from "@/lib/request";
-import {
-  useReorderMutation,
-  handleReorder,
-} from "@/lib/hooks/useReorderMutation";
 import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+import { LocationSearch } from "@/components/common/location-search";
+import PluginComponent from "@/components/common/plugin-component";
+import { TableSkeleton } from "@/components/common/skeleton-loading";
 
 export const CameraShowPageCard = ({
   device,
@@ -185,12 +187,12 @@ const CameraPositionPresets = ({
 }) => {
   const queryClient = useQueryClient();
   const [presetToDelete, setPresetToDelete] = useState<PositionPreset | null>(
-    null
+    null,
   );
   const [presetName, setPresetName] = useState("");
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationList | null>(
-    null
+    null,
   );
 
   // Add state for the preset being edited
@@ -307,7 +309,7 @@ const CameraPositionPresets = ({
   const handleReorderPreset = (
     preset: PositionPreset,
     direction: "up" | "down",
-    presets: PositionPreset[]
+    presets: PositionPreset[],
   ) => {
     const result = handleReorder(preset, direction, presets);
     if (result) {
@@ -778,7 +780,7 @@ const CameraPositionPresets = ({
                                   handleReorderPreset(
                                     preset,
                                     "up",
-                                    group.presets
+                                    group.presets,
                                   )
                                 }
                                 disabled={
@@ -800,7 +802,7 @@ const CameraPositionPresets = ({
                                   handleReorderPreset(
                                     preset,
                                     "down",
-                                    group.presets
+                                    group.presets,
                                   )
                                 }
                                 disabled={
