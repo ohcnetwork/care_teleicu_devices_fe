@@ -1,15 +1,18 @@
-import { DeviceListResponse } from "@/lib/device/types";
-import { Encounter } from "@/lib/types/encounter";
-import PluginComponent from "@/components/common/plugin-component";
-import { Skeleton } from "@/components/ui/skeleton";
-import { VitalsObservationDevice } from "@/lib/vitals-observation/types";
-import { VitalsObservationMonitor } from "@/lib/vitals-observation/hl7-monitor/vitals-observation-monitor";
-import deviceApi from "@/lib/device/deviceApi";
-import { mutate, query } from "@/lib/request";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, SettingsIcon, ActivityIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ActivityIcon, AlertTriangle, SettingsIcon } from "lucide-react";
 import { navigate, usePathParams } from "raviger";
+
+import deviceApi from "@/lib/device/deviceApi";
+import { DeviceListResponse } from "@/lib/device/types";
+import { mutate, query } from "@/lib/request";
+import { Encounter } from "@/lib/types/encounter";
+import { VitalsObservationMonitor } from "@/lib/vitals-observation/hl7-monitor/vitals-observation-monitor";
+import { VitalsObservationDevice } from "@/lib/vitals-observation/types";
+
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import PluginComponent from "@/components/common/plugin-component";
 
 interface Props {
   encounter: Encounter;
@@ -58,7 +61,7 @@ export const VitalsObservationEncounterOverview = ({ encounter }: Props) => {
 
   const encounterLinkableDevices =
     locationDevices?.filter(
-      (device) => !encounterDeviceIds.includes(device.id)
+      (device) => !encounterDeviceIds.includes(device.id),
     ) ?? [];
 
   if (encounterDevices.length === 0 && encounterLinkableDevices.length === 0) {
@@ -129,7 +132,7 @@ const EncounterVitalsObservation = ({
 
   const socketUrl = getWebSocketUrl(
     device.care_metadata.gateway.care_metadata.endpoint_address,
-    device.care_metadata.endpoint_address
+    device.care_metadata.endpoint_address,
   );
 
   return <VitalsObservationMonitor socketUrl={socketUrl} />;

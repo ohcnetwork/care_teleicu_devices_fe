@@ -1,8 +1,10 @@
-import CameraFeedWatermark from "@/components/camera/feed-watermark";
-import { useCameraFeed } from "@/lib/camera/camera-feed-context";
-import { VideoStreamPlayer } from "@/lib/camera/components/video-stream-player";
 import { AlertTriangleIcon, Loader2 } from "lucide-react";
 import React, { useEffect } from "react";
+
+import { useCameraFeed } from "@/lib/camera/camera-feed-context";
+import { VideoStreamPlayer } from "@/lib/camera/components/video-stream-player";
+
+import CameraFeedWatermark from "@/components/camera/feed-watermark";
 
 export default function CameraFeedPlayer() {
   const {

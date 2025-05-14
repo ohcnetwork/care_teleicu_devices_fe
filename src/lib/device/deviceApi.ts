@@ -1,5 +1,5 @@
 import { DeviceDetail, DeviceListResponse } from "@/lib/device/types";
-import { apiRoutes, HttpMethod } from "@/lib/request";
+import { HttpMethod, apiRoutes } from "@/lib/request";
 
 export default apiRoutes({
   listDevices: {

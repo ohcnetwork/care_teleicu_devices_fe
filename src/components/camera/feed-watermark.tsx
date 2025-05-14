@@ -1,6 +1,7 @@
 import { useAtomValue } from "jotai";
-import { authUserAtom } from "@/state/user-atom";
 import { useEffect, useRef } from "react";
+
+import { authUserAtom } from "@/state/user-atom";
 
 const CONTAINER_CLASS = "absolute inset-0 pointer-events-none select-none";
 const WATERMARK_CLASS = "absolute z-10 font-semibold text-white/20 md:text-2xl";
