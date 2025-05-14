@@ -1,18 +1,21 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mutate, query } from "@/lib/request";
-import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
-import CameraFeedControls from "@/lib/camera/player/feed-controls";
-import CameraFeedPlayer from "@/lib/camera/player/feed-player";
 import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
-import { Encounter } from "@/lib/types/encounter";
-import PluginComponent from "@/components/common/plugin-component";
-import { PositionPreset } from "@/lib/camera/types";
-import { PresetDropdown } from "./preset-dropdown";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import camerasOfPresetLocationApi from "@/lib/camera/camerasOfPresetLocationApi";
+import CameraFeedControls from "@/lib/camera/player/feed-controls";
+import CameraFeedPlayer from "@/lib/camera/player/feed-player";
+import { PositionPreset } from "@/lib/camera/types";
+import { mutate, query } from "@/lib/request";
+import { Encounter } from "@/lib/types/encounter";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import PluginComponent from "@/components/common/plugin-component";
+
+import { PresetDropdown } from "./preset-dropdown";
 
 interface Props {
   encounter: Encounter;
@@ -43,7 +46,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
   });
 
   const activeCameraDevice = cameras?.results.find(
-    (c) => c.id === activeCamera
+    (c) => c.id === activeCamera,
   );
 
   const { mutate: absoluteMove, isPending: isMoving } = useMutation({
@@ -60,7 +63,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     if (positionPresets?.results.length) {
       setSelectedPreset(
         positionPresets.results.find((p) => p.is_default) ||
-          positionPresets.results[0]
+          positionPresets.results[0],
       );
     }
   }, [positionPresets?.results.length, isFetchingPresets]);
@@ -136,7 +139,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
                   </div>
                 </div>
                 <div className="mt-2 sm:hidden">
-                  <CameraFeedControls 
+                  <CameraFeedControls
                     onRelativeMoved={() => setIsAwayFromPreset(true)}
                   />
                 </div>

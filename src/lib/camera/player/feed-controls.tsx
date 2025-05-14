@@ -1,11 +1,13 @@
+import { useMutation } from "@tanstack/react-query";
+import { Loader2, TriangleIcon, ZoomInIcon, ZoomOutIcon } from "lucide-react";
+
 import { useCameraFeed } from "@/lib/camera/camera-feed-context";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import FeedButton from "@/lib/camera/player/feed-button";
 import { mutate } from "@/lib/request";
 import { cn } from "@/lib/utils";
+
 import { isAppleDevice } from "@/utils";
-import { useMutation } from "@tanstack/react-query";
-import { Loader2, TriangleIcon, ZoomInIcon, ZoomOutIcon } from "lucide-react";
 
 const metaKey = isAppleDevice ? "Meta" : "Control";
 

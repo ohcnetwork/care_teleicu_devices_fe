@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+
+import careApi from "@/lib/careApi";
+import { PaginatedResponse, query } from "@/lib/request";
 import {
   LocationForm,
   LocationList,
   LocationMode,
   LocationTypeIcons,
 } from "@/lib/types/location";
-import { PaginatedResponse, query } from "@/lib/request";
-import careApi from "@/lib/careApi";
 import { stringifyNestedObject } from "@/lib/utils";
+
 import { Autocomplete } from "@/components/ui/autocomplete";
 
 interface LocationSearchProps {

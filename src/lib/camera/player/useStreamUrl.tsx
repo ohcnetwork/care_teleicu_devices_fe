@@ -1,7 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
+
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import { CameraDevice } from "@/lib/camera/types";
 import { query } from "@/lib/request";
-import { useQuery } from "@tanstack/react-query";
 
 export const useStreamUrl = (device: CameraDevice) => {
   return useQuery({

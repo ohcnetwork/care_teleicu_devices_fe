@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
+
 import NetworkSignal from "@/lib/camera/components/network-signal";
 import { calculateVideoDelay } from "@/lib/camera/utils";
-import { useEffect, useState } from "react";
 
 type StreamStatus = "loading" | "playing" | "stopped";
 

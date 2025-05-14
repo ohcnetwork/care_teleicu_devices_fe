@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+
+import { cn } from "@/lib/utils";
 
 interface Props {
   /**
@@ -23,7 +24,7 @@ export default function NetworkSignal({ strength, children }: Props) {
         strength === 0 && "text-danger-500",
         strength === 1 && "text-danger-500",
         strength === 2 && "text-warning-500",
-        strength === 3 && "text-primary-500"
+        strength === 3 && "text-primary-500",
       )}
     >
       <div className="flex items-end gap-0.5 p-1.5 md:p-2">
@@ -42,7 +43,7 @@ export default function NetworkSignal({ strength, children }: Props) {
                 i === 2 && "h-[15px]",
 
                 // Whether to infill with strength color or not
-                strength > i ? "bg-current" : "bg-zinc-500/30"
+                strength > i ? "bg-current" : "bg-zinc-500/30",
               )}
             />
           ))

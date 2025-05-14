@@ -27,9 +27,9 @@ interface ApiRoute<TRequest, TResponse> {
 }
 
 export const apiRoutes = <
-  const T extends Record<string, ApiRoute<unknown, unknown>>
+  const T extends Record<string, ApiRoute<unknown, unknown>>,
 >(
-  routes: T
+  routes: T,
 ): T => {
   return routes;
 };
@@ -86,12 +86,12 @@ const getUrl = (
   path: string,
   query?: QueryParams,
   pathParams?: Record<string, string | number>,
-  baseUrl?: string
+  baseUrl?: string,
 ) => {
   if (pathParams) {
     path = Object.entries(pathParams).reduce(
       (acc, [key, value]) => acc.replace(`{${key}}`, `${value}`),
-      path
+      path,
     );
   }
   const url = new URL(path, baseUrl || window.CARE_API_URL);
@@ -149,13 +149,13 @@ export async function getResponseBody<TData>(res: Response): Promise<TData> {
 
 async function request<Route extends ApiRoute<unknown, unknown>>(
   { path, method }: Route,
-  options?: ApiCallOptions<Route>
+  options?: ApiCallOptions<Route>,
 ): Promise<Route["TResponse"]> {
   const url = getUrl(
     path,
     options?.queryParams,
     options?.pathParams,
-    options?.baseUrl
+    options?.baseUrl,
   );
 
   const fetchOptions: RequestInit = {
@@ -182,7 +182,7 @@ async function request<Route extends ApiRoute<unknown, unknown>>(
     const isSilent =
       typeof options?.silent === "function"
         ? options.silent(res)
-        : options?.silent ?? false;
+        : (options?.silent ?? false);
 
     throw new HttpError({
       message: "Request Failed",
@@ -197,7 +197,7 @@ async function request<Route extends ApiRoute<unknown, unknown>>(
 
 const query = <Route extends ApiRoute<unknown, unknown>>(
   route: Route,
-  options?: ApiCallOptions<Route>
+  options?: ApiCallOptions<Route>,
 ) => {
   return ({ signal }: { signal: AbortSignal }) => {
     return request(route, { ...options, signal });
@@ -206,7 +206,7 @@ const query = <Route extends ApiRoute<unknown, unknown>>(
 
 const debouncedQuery = <Route extends ApiRoute<unknown, unknown>>(
   route: Route,
-  options?: ApiCallOptions<Route> & { debounceInterval?: number }
+  options?: ApiCallOptions<Route> & { debounceInterval?: number },
 ) => {
   return async ({ signal }: { signal: AbortSignal }) => {
     await sleep(options?.debounceInterval ?? 500);
@@ -217,7 +217,7 @@ query.debounced = debouncedQuery;
 
 const mutate = <Route extends ApiRoute<unknown, unknown>>(
   route: Route,
-  options?: ApiCallOptions<Route>
+  options?: ApiCallOptions<Route>,
 ) => {
   return (variables: Route["TRequest"]) => {
     return request(route, { ...options, body: variables });

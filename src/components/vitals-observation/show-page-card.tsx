@@ -1,13 +1,16 @@
+import { AlertTriangle } from "lucide-react";
+
 import { VitalsObservationMonitor } from "@/lib/vitals-observation/hl7-monitor/vitals-observation-monitor";
+
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
+
 import PluginComponent from "@/components/common/plugin-component";
-import { AlertTriangle } from "lucide-react";
 
 interface Props {
   device: {
@@ -46,7 +49,7 @@ export const VitalsObservationShowPageCard = ({ device }: Props) => {
 
   const socketUrl = getWebSocketUrl(
     device.care_metadata.gateway.care_metadata.endpoint_address,
-    device.care_metadata.endpoint_address
+    device.care_metadata.endpoint_address,
   );
 
   if (device.care_metadata.type !== "HL7-Monitor") {

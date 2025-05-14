@@ -1,5 +1,5 @@
 import { PositionPreset, PositionPresetWriteRequest } from "@/lib/camera/types";
-import { apiRoutes, HttpMethod, PaginatedResponse } from "@/lib/request";
+import { HttpMethod, PaginatedResponse, apiRoutes } from "@/lib/request";
 
 export default apiRoutes({
   list: {

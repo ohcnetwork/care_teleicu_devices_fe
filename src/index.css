@@ -10,7 +10,7 @@
   .tooltip .tooltip-text {
     visibility: hidden;
     opacity: 0;
-    @apply bg-black/75 backdrop-blur text-white text-center p-2 rounded absolute z-50 text-sm block transition-opacity whitespace-nowrap pointer-events-none;
+    @apply pointer-events-none absolute z-50 block rounded bg-black/75 p-2 text-center text-sm whitespace-nowrap text-white backdrop-blur transition-opacity;
   }
 
   .tooltip .tooltip-left {

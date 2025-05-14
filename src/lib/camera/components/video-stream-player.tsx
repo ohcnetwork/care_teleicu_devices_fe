@@ -129,7 +129,7 @@ export const VideoStreamPlayer = ({
             const mimeCodec = new TextDecoder("utf-8").decode(data.slice(1));
             try {
               mseSourceBuffer = mediaSource.addSourceBuffer(
-                `video/mp4; codecs="${mimeCodec}"`
+                `video/mp4; codecs="${mimeCodec}"`,
               );
             } catch (error) {
               onError?.(error);
