@@ -107,12 +107,16 @@ export const VitalsObservationShowPageCard = ({ device }: Props) => {
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-              <div className="overflow-x-auto">
-                <span className="font-medium text-gray-500 dark:text-gray-400">
-                  WebSocket URL:
-                </span>
-                <span className="ml-2 font-mono text-sm break-all">{socketUrl}</span>
-              </div>
+              <details className="text-xs text-gray-500 dark:text-gray-400">
+                <summary className="cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 select-none">
+                  Show Technical Details
+                </summary>
+                <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded-md">
+                  <code className="break-all text-[11px] whitespace-pre-wrap">
+                    {socketUrl}
+                  </code>
+                </div>
+              </details>
             </div>
           </CardContent>
         </Card>
