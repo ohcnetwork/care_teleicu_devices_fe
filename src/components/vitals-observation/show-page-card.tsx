@@ -55,7 +55,7 @@ export const VitalsObservationShowPageCard = ({ device }: Props) => {
 
   return (
     <PluginComponent>
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4 w-full max-w-full overflow-hidden">
         {/* Device Information Card */}
         <Card className="w-full">
           <CardHeader>
@@ -97,7 +97,7 @@ export const VitalsObservationShowPageCard = ({ device }: Props) => {
                   <span className="font-medium text-gray-500 dark:text-gray-400">
                     Gateway Endpoint:
                   </span>
-                  <span className="ml-2 font-semibold">
+                  <span className="ml-2 font-semibold break-all">
                     {
                       device.care_metadata.gateway.care_metadata
                         .endpoint_address
@@ -107,18 +107,24 @@ export const VitalsObservationShowPageCard = ({ device }: Props) => {
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-              <div>
-                <span className="font-medium text-gray-500 dark:text-gray-400">
-                  WebSocket URL:
-                </span>
-                <span className="ml-2 font-mono text-sm">{socketUrl}</span>
-              </div>
+              <details className="text-xs text-gray-500 dark:text-gray-400">
+                <summary className="cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 select-none">
+                  Show Technical Details
+                </summary>
+                <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded-md">
+                  <code className="break-all text-[11px] whitespace-pre-wrap">
+                    {socketUrl}
+                  </code>
+                </div>
+              </details>
             </div>
           </CardContent>
         </Card>
 
-        {/* Vitals Observation Monitor */}
-        <VitalsObservationMonitor socketUrl={socketUrl} />
+        {/* Vitals Observation Monitor Container */}
+        <div className="max-w-full overflow-hidden">
+          <VitalsObservationMonitor socketUrl={socketUrl} />
+        </div>
       </div>
     </PluginComponent>
   );
