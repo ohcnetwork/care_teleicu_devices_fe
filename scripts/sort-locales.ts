@@ -7,7 +7,7 @@ async function main() {
 
   const sortedData = Object.keys(data)
     .sort()
-    .reduce((acc, key) => {
+    .reduce((acc: Record<string, string>, key) => {
       acc[key] = data[key];
       return acc;
     }, {});
