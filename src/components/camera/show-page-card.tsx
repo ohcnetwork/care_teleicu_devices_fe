@@ -499,7 +499,7 @@ const CameraPositionPresets = ({
                 <div className="flex items-center gap-2">
                   <div className="size-1.5 rounded-full bg-primary-500"></div>
                   <Link
-                    href={`/facility/${facilityId}/settings/location/${group.locationId}`}
+                    href={`/facility/${facilityId}/settings/locations/${group.locationId}`}
                     className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline"
                   >
                     {group.locationName}
