@@ -16,10 +16,6 @@ export default function CameraFeedPlayer() {
     setPlayedOn,
   } = useCameraFeed();
 
-  if (isAuthenticating) {
-    return <StreamLoading />;
-  }
-
   useEffect(() => {
     if (playerStatus === "waiting") {
       const timeout = setTimeout(() => {
@@ -29,6 +25,14 @@ export default function CameraFeedPlayer() {
       return () => clearTimeout(timeout);
     }
   }, [playerStatus]);
+
+  if (isAuthenticating) {
+    return <StreamLoading />;
+  }
+
+  if (!streamUrl) {
+    return <FallbackOverlay />;
+  }
 
   return (
     <>
