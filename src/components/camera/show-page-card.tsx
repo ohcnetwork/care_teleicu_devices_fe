@@ -90,7 +90,7 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
 
   return (
     <CameraFeedProvider device={device}>
-      <div className="relative aspect-[16/9] bg-gray-950 group rounded-xl overflow-hidden shadow-lgl">
+      <div className="relative aspect-[16/9] bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
         <CameraFeedPlayer />
         <div className="hidden sm:block">
           <CameraFeedControls inlineView />
