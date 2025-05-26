@@ -4,7 +4,7 @@ declare const ManagedMediaSource: typeof MediaSource;
 
 type StreamPlayerProps = React.VideoHTMLAttributes<HTMLVideoElement> & {
   playerRef: React.RefObject<HTMLVideoElement>;
-  streamUrl: string;
+  streamUrl: string | undefined | null;
   className?: string;
   onPlay?: () => void;
   onEnded?: () => void;
