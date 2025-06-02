@@ -106,10 +106,9 @@ export const VideoStreamPlayer = ({
   };
 
   const reconnect = () => {
-    console.log("Reconnecting stream...");
     cleanup();
     setTimeout(() => {
-      startMSE(); // restart fresh
+      startMSE();
     }, 200);
   };
 
@@ -170,7 +169,6 @@ export const VideoStreamPlayer = ({
     const freezeChecker = setInterval(() => {
       if (playerRef.current) {
         if (playerRef.current.currentTime === lastTime) {
-          console.log("Video frozen detected! Trying reconnect...");
           reconnect();
         }
         lastTime = playerRef.current.currentTime;

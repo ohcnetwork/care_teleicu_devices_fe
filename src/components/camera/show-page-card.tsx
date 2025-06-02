@@ -133,6 +133,17 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
               {status.moveStatus.zoom}
             </span>
           </div>
+          <div className="ml-auto text-xs px-2 py-1 rounded-md flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1 text-xs"
+              onClick={() => refetch()}
+            >
+              Reset
+            </Button>
+          </div>
+
           {status.error && (
             <div className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded-md flex items-center gap-1.5">
               <span className="font-medium">Error:</span>
