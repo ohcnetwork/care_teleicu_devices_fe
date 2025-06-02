@@ -1,30 +1,30 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { useEffect } from "react";
 import {
-  NetworkMetrics,
-  PingMetrics,
-} from "@/components/common/network-metrics";
-import {
-  CheckCircle,
-  XCircle,
   AlertTriangle,
+  CheckCircle,
   Loader2,
   Pause,
   Play,
+  XCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 import {
   Line,
   LineChart,
+  ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  ReferenceLine,
-  ReferenceArea,
 } from "recharts";
-import PluginComponent from "@/components/common/plugin-component";
+
 import { useGatewayHealthCheck } from "@/lib/device/hooks/useGatewayHealthCheck";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+import { NetworkMetrics } from "@/components/common/network-metrics";
+import PluginComponent from "@/components/common/plugin-component";
 
 interface Props {
   device: {
@@ -73,7 +73,7 @@ export const GatewayShowPageCard = ({ device }: Props) => {
     if (!healthData) return "Service status unknown";
 
     const operationalCount = [healthData.server, healthData.database].filter(
-      Boolean
+      Boolean,
     ).length;
     const totalServices = 2;
 

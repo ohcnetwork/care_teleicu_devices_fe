@@ -1,7 +1,10 @@
-import { useCameraFeed } from "@/lib/camera/camera-feed-context";
-import { VideoStreamPlayer } from "@/lib/camera/components/video-stream-player";
 import { AlertTriangleIcon, Loader2 } from "lucide-react";
 import React, { useEffect } from "react";
+
+import { useCameraFeed } from "@/lib/camera/camera-feed-context";
+import { VideoStreamPlayer } from "@/lib/camera/components/video-stream-player";
+
+import CameraFeedWatermark from "@/components/camera/feed-watermark";
 
 export default function CameraFeedPlayer() {
   const {
@@ -13,10 +16,6 @@ export default function CameraFeedPlayer() {
     setPlayedOn,
   } = useCameraFeed();
 
-  if (!streamUrl || isAuthenticating) {
-    return <StreamLoading />;
-  }
-
   useEffect(() => {
     if (playerStatus === "waiting") {
       const timeout = setTimeout(() => {
@@ -27,9 +26,18 @@ export default function CameraFeedPlayer() {
     }
   }, [playerStatus]);
 
+  if (isAuthenticating) {
+    return <StreamLoading />;
+  }
+
+  if (!streamUrl) {
+    return <FallbackOverlay />;
+  }
+
   return (
     <>
       <FallbackOverlay />
+      <CameraFeedWatermark />
       <VideoStreamPlayer
         playerRef={playerRef as React.RefObject<HTMLVideoElement>}
         streamUrl={streamUrl}
@@ -51,16 +59,16 @@ const FallbackOverlay = () => {
   const { isAuthenticating, playerStatus, isCameraStatusError } =
     useCameraFeed();
 
+  if (isCameraStatusError && playerStatus !== "playing") {
+    return <UnableToCommunicateWithCamera />;
+  }
+
   if (
     playerStatus === "loading" ||
     playerStatus === "waiting" ||
     isAuthenticating
   ) {
     return <StreamLoading />;
-  }
-
-  if (isCameraStatusError && playerStatus !== "playing") {
-    return <UnableToCommunicateWithCamera />;
   }
 
   if (playerStatus === "unauthorized") {

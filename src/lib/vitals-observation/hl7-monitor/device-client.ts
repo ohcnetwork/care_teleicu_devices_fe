@@ -1,9 +1,10 @@
+import EventEmitter from "eventemitter3";
+
 import {
   VitalsDataBase,
   VitalsValueBase,
   VitalsWaveformBase,
 } from "@/lib/vitals-observation/types";
-import EventEmitter from "eventemitter3";
 
 const ECG_WAVENAME_KEYS = [
   "I",
@@ -26,7 +27,7 @@ const WAVEFORM_KEY_MAP: Record<VitalsWaveformData["wave-name"], EventName> = {
 
   // Maps each ECG wave name to the  event "ecg-waveform"
   ...(Object.fromEntries(
-    ECG_WAVENAME_KEYS.map((key) => [key, "ecg-waveform"])
+    ECG_WAVENAME_KEYS.map((key) => [key, "ecg-waveform"]),
   ) as Record<EcgWaveName, EventName>),
 };
 

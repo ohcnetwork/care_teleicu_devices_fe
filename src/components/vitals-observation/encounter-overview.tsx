@@ -1,48 +1,89 @@
-import { DeviceListResponse } from "@/lib/device/types";
-import { Encounter } from "@/lib/types/encounter";
-import PluginComponent from "@/components/common/plugin-component";
-import { Skeleton } from "@/components/ui/skeleton";
-import { VitalsObservationDevice } from "@/lib/vitals-observation/types";
-import { VitalsObservationMonitor } from "@/lib/vitals-observation/hl7-monitor/vitals-observation-monitor";
-import deviceApi from "@/lib/device/deviceApi";
-import { query } from "@/lib/request";
-import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, SettingsIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ActivityIcon, AlertTriangle, SettingsIcon } from "lucide-react";
 import { navigate, usePathParams } from "raviger";
+
+import deviceApi from "@/lib/device/deviceApi";
+import { DeviceListResponse } from "@/lib/device/types";
+import { mutate, query } from "@/lib/request";
+import { Encounter } from "@/lib/types/encounter";
+import { VitalsObservationMonitor } from "@/lib/vitals-observation/hl7-monitor/vitals-observation-monitor";
+import { VitalsObservationDevice } from "@/lib/vitals-observation/types";
+
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import PluginComponent from "@/components/common/plugin-component";
 
 interface Props {
   encounter: Encounter;
 }
 
 export const VitalsObservationEncounterOverview = ({ encounter }: Props) => {
-  const { data: devices, isLoading } = useQuery({
-    queryKey: ["vitals-observation-devices", encounter.id],
-    queryFn: query(deviceApi.listDevices, {
-      pathParams: { facilityId: encounter.facility.id },
-      queryParams: {
-        care_type: "vitals-observation",
-        current_encounter: encounter.id,
-      },
-    }),
-    select: (data: DeviceListResponse) => data.results,
-  });
+  const { data: encounterDevices, isLoading: isLoadingEncounterDevices } =
+    useQuery({
+      queryKey: ["encounter-vitals-observation-devices", encounter.id],
+      queryFn: query(deviceApi.listDevices, {
+        pathParams: { facilityId: encounter.facility.id },
+        queryParams: {
+          care_type: "vitals-observation",
+          current_encounter: encounter.id,
+          limit: 100,
+        },
+      }),
+      select: (data: DeviceListResponse) => data.results,
+    });
 
-  if (isLoading || !devices) {
+  const { data: locationDevices, isLoading: isLoadingLocationDevices } =
+    useQuery({
+      queryKey: ["location-vitals-observation-devices", encounter.facility.id],
+      queryFn: query(deviceApi.listDevices, {
+        pathParams: { facilityId: encounter.facility.id },
+        queryParams: {
+          care_type: "vitals-observation",
+          current_location: encounter.current_location?.id,
+          limit: 100,
+        },
+      }),
+      enabled: !!encounter.current_location?.id,
+      select: (data: DeviceListResponse) => data.results,
+    });
+
+  if (
+    isLoadingEncounterDevices ||
+    !encounterDevices ||
+    (!!encounter.current_location?.id &&
+      (isLoadingLocationDevices || !locationDevices))
+  ) {
     return <Skeleton className="h-24 md:h-48 w-full" />;
   }
 
-  if (devices.length === 0) {
+  const encounterDeviceIds = encounterDevices.map((device) => device.id);
+
+  const encounterLinkableDevices =
+    locationDevices?.filter(
+      (device) => !encounterDeviceIds.includes(device.id),
+    ) ?? [];
+
+  if (encounterDevices.length === 0 && encounterLinkableDevices.length === 0) {
     return null;
   }
 
   return (
     <PluginComponent>
       <div className="flex flex-col gap-4">
-        {devices.map((device) => (
+        {encounterDevices.map((device) => (
           <EncounterVitalsObservation
             key={device.id}
             device={device as unknown as VitalsObservationDevice}
+          />
+        ))}
+
+        {encounterLinkableDevices.map((device) => (
+          <LinkableDeviceCallout
+            key={device.id}
+            device={device as unknown as VitalsObservationDevice}
+            encounterId={encounter.id}
+            facilityId={encounter.facility.id}
           />
         ))}
       </div>
@@ -91,8 +132,58 @@ const EncounterVitalsObservation = ({
 
   const socketUrl = getWebSocketUrl(
     device.care_metadata.gateway.care_metadata.endpoint_address,
-    device.care_metadata.endpoint_address
+    device.care_metadata.endpoint_address,
   );
 
   return <VitalsObservationMonitor socketUrl={socketUrl} />;
+};
+
+const LinkableDeviceCallout = ({
+  device,
+  encounterId,
+  facilityId,
+}: {
+  device: VitalsObservationDevice;
+  encounterId: string;
+  facilityId: string;
+}) => {
+  const queryClient = useQueryClient();
+  const { mutate: associateDevice, isPending } = useMutation({
+    mutationFn: mutate(deviceApi.associateEncounter, {
+      pathParams: { facilityId, deviceId: device.id },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["encounter-vitals-observation-devices", encounterId],
+      });
+    },
+  });
+
+  return (
+    <div className="text-xs bg-yellow-50 px-3 py-2 rounded-md flex flex-col sm:flex-row items-start sm:items-center gap-2 border border-yellow-200 shadow-sm mt-2">
+      <div className="flex gap-2 items-start flex-1 w-full">
+        <ActivityIcon className="size-4 text-yellow-500 mt-0.5 shrink-0" />
+        <span className="text-yellow-700">
+          <p>
+            A Vitals Observation device{" "}
+            <strong className="font-semibold">
+              {device.user_friendly_name || device.registered_name}
+            </strong>{" "}
+            ({device.care_metadata.type}) is available in this encounters
+            location.
+          </p>
+          <p>Do you want to associate it to this encounter?</p>
+        </span>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => associateDevice({ encounter: encounterId })}
+        disabled={isPending}
+        className="w-full sm:w-auto mt-1 sm:mt-0"
+      >
+        {isPending ? "Associating..." : "Associate"}
+      </Button>
+    </div>
+  );
 };

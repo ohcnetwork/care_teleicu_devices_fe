@@ -46,7 +46,7 @@ export const lerp = (x0: number, x1: number, y0: number, y1: number) => {
 export const getChannel = (observation: VitalsWaveformBase): ChannelOptions => {
   return {
     samplingRate: parseInt(
-      observation["sampling rate"]?.replace("/sec", "") ?? "-1"
+      observation["sampling rate"]?.replace("/sec", "") ?? "-1",
     ),
     baseline: observation["data-baseline"] ?? 0,
     lowLimit: observation["data-low-limit"] ?? 0,
@@ -66,7 +66,7 @@ const DEFAULT_SCALE = 38 * 11;
  */
 export const getVitalsCanvasSizeAndDuration = (
   ratio = DEFAULT_RATIO,
-  scale = DEFAULT_SCALE
+  scale = DEFAULT_SCALE,
 ) => {
   return {
     size: {

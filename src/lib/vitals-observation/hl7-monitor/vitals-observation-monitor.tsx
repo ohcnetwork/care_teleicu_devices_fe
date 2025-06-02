@@ -1,3 +1,6 @@
+import { WifiOffIcon } from "lucide-react";
+import { useEffect } from "react";
+
 import { cn } from "@/lib/utils";
 import {
   NonWaveformContentGroup,
@@ -5,8 +8,6 @@ import {
   WaveformLabels,
 } from "@/lib/vitals-observation/helper-components";
 import useVitalsObservation from "@/lib/vitals-observation/hl7-monitor/useVitalsObservation";
-import { WifiOffIcon } from "lucide-react";
-import { useEffect } from "react";
 
 interface Props {
   socketUrl: string;
@@ -24,7 +25,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
       <div
         className={cn(
           "flex-col gap-1 rounded-md p-2 max-w-4xl relative overflow-hidden bg-gray-950",
-          isOnline ? "hidden" : "flex"
+          isOnline ? "hidden" : "flex",
         )}
       >
         {/* Diagonal stripes overlay */}
@@ -45,7 +46,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
       <div
         className={cn(
           "flex-col gap-1 rounded-lg bg-gray-950 p-2 max-w-4xl mx-auto",
-          isOnline ? "flex" : "hidden"
+          isOnline ? "flex" : "hidden",
         )}
       >
         <div className="relative flex flex-col gap-2 md:flex-row-reverse md:justify-between overflow-clip">
@@ -129,7 +130,7 @@ const VitalsObservationMonitor = ({ socketUrl }: Props) => {
                   <span className="text-lg font-black md:text-2xl">
                     {data.temperature1?.value && data.temperature2?.value
                       ? Math.abs(
-                          data.temperature1?.value - data.temperature2?.value
+                          data.temperature1?.value - data.temperature2?.value,
                         )
                       : "--"}
                   </span>

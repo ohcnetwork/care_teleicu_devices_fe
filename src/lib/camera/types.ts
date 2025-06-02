@@ -1,6 +1,6 @@
-import { LocationList } from "@/lib/types/location";
-import { LinkedGateway } from "@/lib/types/gateway";
 import { DeviceList } from "@/lib/device/types";
+import { LinkedGateway } from "@/lib/types/gateway";
+import { LocationList } from "@/lib/types/location";
 
 export interface PTZPayload {
   x: number;

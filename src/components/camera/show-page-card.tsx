@@ -1,35 +1,38 @@
-import { TableSkeleton } from "@/components/common/skeleton-loading";
+import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  EyeIcon,
+  Move,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+import { Link } from "raviger";
+import { useState } from "react";
+
 import {
   CameraFeedProvider,
   useCameraFeed,
 } from "@/lib/camera/camera-feed-context";
+import cameraActionApi from "@/lib/camera/cameraActionApi";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
 import CameraFeedControls from "@/lib/camera/player/feed-controls";
 import CameraFeedPlayer from "@/lib/camera/player/feed-player";
-import { CameraDevice, PositionPreset, PTZPayload } from "@/lib/camera/types";
-import { query, mutate } from "@/lib/request";
-import { Link } from "raviger";
-import { useQuery } from "@tanstack/react-query";
+import { CameraDevice, PTZPayload, PositionPreset } from "@/lib/camera/types";
+import useCameraStatus from "@/lib/camera/useCameraStatus";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Plus,
-  Trash2,
-  ExternalLink,
-  Move,
-  Pencil,
-  ChevronUp,
-  ChevronDown,
-  EyeIcon,
-} from "lucide-react";
+  handleReorder,
+  useReorderMutation,
+} from "@/lib/hooks/useReorderMutation";
+import { mutate, query } from "@/lib/request";
+import { HttpMethod } from "@/lib/request";
+import { LocationList } from "@/lib/types/location";
+import { stringifyNestedObject } from "@/lib/utils";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,32 +43,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { LocationSearch } from "@/components/common/location-search";
-import { LocationList } from "@/lib/types/location";
-import useCameraStatus from "@/lib/camera/useCameraStatus";
-import { stringifyNestedObject } from "@/lib/utils";
-import cameraActionApi from "@/lib/camera/cameraActionApi";
-import { Label } from "@/components/ui/label";
-import { AlertTriangle } from "lucide-react";
-import PluginComponent from "@/components/common/plugin-component";
-import { HttpMethod } from "@/lib/request";
-import {
-  useReorderMutation,
-  handleReorder,
-} from "@/lib/hooks/useReorderMutation";
 import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+import { LocationSearch } from "@/components/common/location-search";
+import PluginComponent from "@/components/common/plugin-component";
+import { TableSkeleton } from "@/components/common/skeleton-loading";
 
 export const CameraShowPageCard = ({
   device,
@@ -87,9 +90,11 @@ const CameraStream = ({ device }: { device: CameraDevice }) => {
 
   return (
     <CameraFeedProvider device={device}>
-      <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
+      <div className="relative aspect-[16/9] bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
         <CameraFeedPlayer />
-        <CameraFeedControls inlineView />
+        <div className="hidden sm:block">
+          <CameraFeedControls inlineView />
+        </div>
       </div>
       <div className="mt-2 sm:hidden">
         <CameraFeedControls />
@@ -182,12 +187,12 @@ const CameraPositionPresets = ({
 }) => {
   const queryClient = useQueryClient();
   const [presetToDelete, setPresetToDelete] = useState<PositionPreset | null>(
-    null
+    null,
   );
   const [presetName, setPresetName] = useState("");
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationList | null>(
-    null
+    null,
   );
 
   // Add state for the preset being edited
@@ -197,7 +202,7 @@ const CameraPositionPresets = ({
   const [editSelectedLocation, setEditSelectedLocation] =
     useState<LocationList | null>(null);
   const [editPTZ, setEditPTZ] = useState<PTZPayload | null>(null);
-
+  const [ptzUpdated, setPtzUpdated] = useState(false);
   // Fetch presets - the API now returns location data directly
   const { data, isLoading } = useQuery({
     queryKey: ["camera-position-presets", device.id],
@@ -249,6 +254,7 @@ const CameraPositionPresets = ({
   const absoluteMoveMutation = useMutation({
     mutationFn: mutate(cameraActionApi.absoluteMove, {
       pathParams: { cameraId: device.id },
+      silent: true,
     }),
     onSuccess: () => {
       // Refresh camera status after moving
@@ -304,7 +310,7 @@ const CameraPositionPresets = ({
   const handleReorderPreset = (
     preset: PositionPreset,
     direction: "up" | "down",
-    presets: PositionPreset[]
+    presets: PositionPreset[],
   ) => {
     const result = handleReorder(preset, direction, presets);
     if (result) {
@@ -346,6 +352,7 @@ const CameraPositionPresets = ({
     setEditSelectedLocation(preset.location);
     setEditPTZ(preset.ptz);
     setEditPopoverOpen(true);
+    setPtzUpdated(false);
   };
 
   // Add handler for update preset
@@ -494,7 +501,7 @@ const CameraPositionPresets = ({
                 <div className="flex items-center gap-2">
                   <div className="size-1.5 rounded-full bg-primary-500"></div>
                   <Link
-                    href={`/facility/${facilityId}/settings/location/${group.locationId}`}
+                    href={`/facility/${facilityId}/settings/locations/${group.locationId}`}
                     className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline"
                   >
                     {group.locationName}
@@ -664,6 +671,7 @@ const CameraPositionPresets = ({
                                   <hr className="my-4 bg-gray-200 h-px" />
                                   <div className="space-y-2">
                                     <Label>Current PTZ Position</Label>
+
                                     <div className="grid grid-cols-3 gap-2">
                                       <div className="space-y-1">
                                         <Label className="text-xs text-gray-500">
@@ -703,6 +711,7 @@ const CameraPositionPresets = ({
                                       onClick={() => {
                                         if (cameraStatus) {
                                           setEditPTZ(cameraStatus.position);
+                                          setPtzUpdated(true);
                                         }
                                       }}
                                       disabled={
@@ -711,7 +720,13 @@ const CameraPositionPresets = ({
                                       }
                                     >
                                       <Move className="size-3" />
-                                      Update with Camera's Current Position
+                                      {ptzUpdated ? (
+                                        <p>Updated</p>
+                                      ) : (
+                                        <p>
+                                          Update with Camera's Current Position
+                                        </p>
+                                      )}
                                     </Button>
                                     <hr className="my-4 bg-gray-200 h-px" />
                                   </div>
@@ -766,7 +781,7 @@ const CameraPositionPresets = ({
                                   handleReorderPreset(
                                     preset,
                                     "up",
-                                    group.presets
+                                    group.presets,
                                   )
                                 }
                                 disabled={
@@ -788,7 +803,7 @@ const CameraPositionPresets = ({
                                   handleReorderPreset(
                                     preset,
                                     "down",
-                                    group.presets
+                                    group.presets,
                                   )
                                 }
                                 disabled={

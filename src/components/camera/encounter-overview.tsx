@@ -1,4 +1,6 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+
 import { CameraFeedProvider } from "@/lib/camera/camera-feed-context";
 import cameraActionApi from "@/lib/camera/cameraActionApi";
 import cameraPositionPresetApi from "@/lib/camera/cameraPositionPresetApi";
@@ -6,11 +8,13 @@ import camerasOfPresetLocationApi from "@/lib/camera/camerasOfPresetLocationApi"
 import CameraFeedControls from "@/lib/camera/player/feed-controls";
 import CameraFeedPlayer from "@/lib/camera/player/feed-player";
 import { PositionPreset } from "@/lib/camera/types";
-import { query, mutate } from "@/lib/request";
+import { mutate, query } from "@/lib/request";
 import { Encounter } from "@/lib/types/encounter";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import PluginComponent from "@/components/common/plugin-component";
+
 import { PresetDropdown } from "./preset-dropdown";
 
 interface Props {
@@ -42,12 +46,13 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
   });
 
   const activeCameraDevice = cameras?.results.find(
-    (c) => c.id === activeCamera
+    (c) => c.id === activeCamera,
   );
 
   const { mutate: absoluteMove, isPending: isMoving } = useMutation({
     mutationFn: mutate(cameraActionApi.absoluteMove, {
       pathParams: { cameraId: activeCamera ?? "" },
+      silent: true,
     }),
   });
 
@@ -59,7 +64,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     if (positionPresets?.results.length) {
       setSelectedPreset(
         positionPresets.results.find((p) => p.is_default) ||
-          positionPresets.results[0]
+          positionPresets.results[0],
       );
     }
   }, [positionPresets?.results.length, isFetchingPresets]);
@@ -79,6 +84,10 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     setSelectedPreset(preset);
     setIsAwayFromPreset(false);
   };
+
+  if (encounter.status === "completed") {
+    return null;
+  }
 
   if (isLoading || !cameras) {
     return null;
@@ -121,10 +130,17 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
           {cameras.results.map((camera) => (
             <TabsContent key={camera.id} value={camera.id}>
               <CameraFeedProvider device={camera}>
-                <div className="relative aspect-video bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
+                <div className="relative aspect-[16/9] bg-gray-950 group rounded-xl overflow-hidden shadow-lg">
                   <CameraFeedPlayer />
+                  <div className="hidden sm:block">
+                    <CameraFeedControls
+                      inlineView
+                      onRelativeMoved={() => setIsAwayFromPreset(true)}
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 sm:hidden">
                   <CameraFeedControls
-                    inlineView
                     onRelativeMoved={() => setIsAwayFromPreset(true)}
                   />
                 </div>
