@@ -105,6 +105,13 @@ export const VideoStreamPlayer = ({
     }
   };
 
+  const reconnect = () => {
+    cleanup();
+    setTimeout(() => {
+      startMSE();
+    }, 200);
+  };
+
   const startMSE = () => {
     try {
       if (!playerRef.current || !streamUrl) return;
@@ -157,8 +164,20 @@ export const VideoStreamPlayer = ({
     } else {
       startMSE();
     }
+    let lastTime = 0;
+
+    const freezeChecker = setInterval(() => {
+      if (playerRef.current) {
+        if (playerRef.current.currentTime === lastTime) {
+          reconnect();
+        }
+        lastTime = playerRef.current.currentTime;
+      }
+    }, 5000);
+
     return () => {
       cleanup();
+      clearInterval(freezeChecker);
     };
   }, [streamUrl]);
 
