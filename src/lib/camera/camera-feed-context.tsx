@@ -1,15 +1,16 @@
-import { GetStatusResponse } from "@/lib/camera/cameraActionApi";
-import { useStreamUrl } from "@/lib/camera/player/useStreamUrl";
-import { CameraDevice } from "@/lib/camera/types";
-import useCameraStatus from "@/lib/camera/useCameraStatus";
 import {
-  createContext,
   Dispatch,
   SetStateAction,
+  createContext,
   useContext,
   useRef,
   useState,
 } from "react";
+
+import { GetStatusResponse } from "@/lib/camera/cameraActionApi";
+import { useStreamUrl } from "@/lib/camera/player/useStreamUrl";
+import { CameraDevice } from "@/lib/camera/types";
+import useCameraStatus from "@/lib/camera/useCameraStatus";
 
 type PlayerStatus =
   | "loading"

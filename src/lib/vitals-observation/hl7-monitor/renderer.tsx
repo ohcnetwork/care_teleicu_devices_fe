@@ -1,5 +1,5 @@
-import { lerp } from "@/lib/vitals-observation/utils";
 import { ChannelOptions } from "@/lib/vitals-observation/types";
+import { lerp } from "@/lib/vitals-observation/utils";
 
 interface ChannelState {
   buffer: number[];
@@ -185,7 +185,7 @@ class VitalsRenderer {
       cursor.x - deltaRows * size.width,
       1 + transform(channel.options.highLimit) + (deltaRows * size.height) / 4,
       10,
-      size.height / 4
+      size.height / 4,
     );
   }
 

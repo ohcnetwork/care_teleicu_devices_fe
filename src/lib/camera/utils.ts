@@ -1,9 +1,10 @@
-import { CameraDevice } from "@/lib/camera/types";
 import { MutableRefObject } from "react";
+
+import { CameraDevice } from "@/lib/camera/types";
 
 export const calculateVideoDelay = (
   ref: MutableRefObject<HTMLVideoElement | null>,
-  playedOn?: Date
+  playedOn?: Date,
 ) => {
   const video = ref.current;
 

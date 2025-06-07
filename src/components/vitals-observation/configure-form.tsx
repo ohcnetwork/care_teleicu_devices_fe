@@ -1,6 +1,10 @@
+import { useEffect } from "react";
+
+import useDevices from "@/lib/device/hooks/useDevices";
+import { ConfigureFormProps } from "@/lib/types/common";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useDevices from "@/lib/device/hooks/useDevices";
 import {
   Select,
   SelectContent,
@@ -8,8 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ConfigureFormProps } from "@/lib/types/common";
-import { useEffect } from "react";
+
 import PluginComponent from "@/components/common/plugin-component";
 
 export const VitalsObservationConfigureForm = ({

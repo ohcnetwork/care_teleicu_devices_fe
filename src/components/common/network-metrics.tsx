@@ -31,7 +31,7 @@ export const NetworkMetrics = ({ metrics }: NetworkMetricsProps) => {
   if (metrics.samples === 0) return null;
 
   const { label: latencyLabel, color: latencyColor } = getPingQualityLabel(
-    metrics.current
+    metrics.current,
   );
 
   return (

@@ -1,6 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+
 import deviceApi from "@/lib/device/deviceApi";
 import { query } from "@/lib/request";
-import { useQuery } from "@tanstack/react-query";
 
 export default function useDevices({
   facilityId,

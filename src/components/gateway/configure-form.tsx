@@ -1,17 +1,20 @@
+import { AlertTriangle, CheckCircle, Loader2, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { useGatewayHealthCheck } from "@/lib/device/hooks/useGatewayHealthCheck";
+import { ConfigureFormProps } from "@/lib/types/common";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ConfigureFormProps } from "@/lib/types/common";
+
 import { NetworkMetrics } from "@/components/common/network-metrics";
 import PluginComponent from "@/components/common/plugin-component";
-import { useGatewayHealthCheck } from "@/lib/device/hooks/useGatewayHealthCheck";
 
 type TestStatus = "idle" | "loading" | "success" | "partial" | "error";
 
@@ -57,7 +60,7 @@ export const GatewayDeviceConfigureForm = ({
         if (!healthData.server) issues.push("Server");
         if (!healthData.database) issues.push("Database");
         setStatusMessage(
-          `Connection issues detected: ${issues.join(", ")} not available.`
+          `Connection issues detected: ${issues.join(", ")} not available.`,
         );
       }
     }
@@ -80,7 +83,7 @@ export const GatewayDeviceConfigureForm = ({
     if (!healthData) return "Service status unknown";
 
     const operationalCount = [healthData.server, healthData.database].filter(
-      Boolean
+      Boolean,
     ).length;
     const totalServices = 2;
 

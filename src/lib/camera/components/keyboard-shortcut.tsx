@@ -1,7 +1,9 @@
-import { cn } from "@/lib/utils";
-import { isAppleDevice } from "@/utils";
 import { Fragment } from "react/jsx-runtime";
 import useKeyboardShortcut from "use-keyboard-shortcut";
+
+import { cn } from "@/lib/utils";
+
+import { isAppleDevice } from "@/utils";
 
 interface Props {
   children?: React.ReactNode;
@@ -25,7 +27,7 @@ export default function KeyboardShortcut(props: Props) {
       <span
         className={cn(
           "tooltip-text space-x-1 text-xs",
-          props.tooltipClassName || "tooltip-bottom"
+          props.tooltipClassName || "tooltip-bottom",
         )}
       >
         {props.helpText && (

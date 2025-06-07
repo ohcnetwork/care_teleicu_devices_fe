@@ -1,7 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { RedoIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
 
 export default function FeedNotAvailable({
   message,
@@ -18,7 +20,7 @@ export default function FeedNotAvailable({
     streamUrl = streamUrl
       ?.replace(
         /[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}/gi,
-        "**"
+        "**",
       )
       .replace(/\/\d+/g, "**");
   }
@@ -27,7 +29,7 @@ export default function FeedNotAvailable({
     <div
       className={cn(
         "absolute inset-x-0 inset-y-0 z-[5] flex flex-col items-center justify-center gap-2 text-center",
-        className
+        className,
       )}
     >
       <ExclamationTriangleIcon className="text-2xl" />

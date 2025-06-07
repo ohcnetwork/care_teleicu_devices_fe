@@ -36,7 +36,7 @@ export interface GatewayHealthCheckResult {
 }
 
 export const useGatewayHealthCheck = (
-  endpointAddress: string
+  endpointAddress: string,
 ): GatewayHealthCheckResult => {
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [pingHistory, setPingHistory] = useState<PingDataPoint[]>([]);

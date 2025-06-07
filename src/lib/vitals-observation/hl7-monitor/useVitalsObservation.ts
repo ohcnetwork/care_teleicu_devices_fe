@@ -1,6 +1,12 @@
 import { useCallback, useRef, useState } from "react";
 
 import {
+  DeviceClient,
+  MonitorData,
+  VitalsWaveformData,
+} from "@/lib/vitals-observation/hl7-monitor/device-client";
+import VitalsRenderer from "@/lib/vitals-observation/hl7-monitor/renderer";
+import {
   ChannelOptions,
   IVitalsComponentProps,
   VitalsDataBase,
@@ -10,13 +16,8 @@ import {
   getChannel,
   getVitalsCanvasSizeAndDuration,
 } from "@/lib/vitals-observation/utils";
-import VitalsRenderer from "@/lib/vitals-observation/hl7-monitor/renderer";
+
 import { useCanvas } from "@/hooks/useCanvas";
-import {
-  DeviceClient,
-  MonitorData,
-  VitalsWaveformData,
-} from "@/lib/vitals-observation/hl7-monitor/device-client";
 
 interface VitalsBPValue extends VitalsDataBase {
   systolic: VitalsValue;
@@ -25,7 +26,7 @@ interface VitalsBPValue extends VitalsDataBase {
 }
 
 export default function useVitalsObservation(
-  config?: IVitalsComponentProps["config"]
+  config?: IVitalsComponentProps["config"],
 ) {
   const waveformForegroundCanvas = useCanvas();
   const waveformBackgroundCanvas = useCanvas();
@@ -109,7 +110,7 @@ export default function useVitalsObservation(
         obtainRenderer();
       });
     },
-    [waveformForegroundCanvas.contextRef, waveformBackgroundCanvas]
+    [waveformForegroundCanvas.contextRef, waveformBackgroundCanvas],
   );
 
   return {
@@ -135,14 +136,14 @@ export default function useVitalsObservation(
 
 const ingestTo = (
   vitalsRenderer: VitalsRenderer,
-  channel: "ecg" | "pleth" | "spo2"
+  channel: "ecg" | "pleth" | "spo2",
 ) => {
   return (observation: MonitorData) => {
     vitalsRenderer.append(
       channel,
       (observation as VitalsWaveformData).data
         .split(" ")
-        .map((x) => parseInt(x)) || []
+        .map((x) => parseInt(x)) || [],
     );
   };
 };

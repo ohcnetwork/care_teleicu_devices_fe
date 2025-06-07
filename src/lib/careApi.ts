@@ -1,4 +1,4 @@
-import { apiRoutes, HttpMethod, PaginatedResponse } from "@/lib/request";
+import { HttpMethod, PaginatedResponse, apiRoutes } from "@/lib/request";
 import { LocationList } from "@/lib/types/location";
 
 export default apiRoutes({
