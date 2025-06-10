@@ -4,6 +4,8 @@ import React, { useEffect } from "react";
 import { useCameraFeed } from "@/lib/camera/camera-feed-context";
 import { VideoStreamPlayer } from "@/lib/camera/components/video-stream-player";
 
+import { Button } from "@/components/ui/button";
+
 import CameraFeedWatermark from "@/components/camera/feed-watermark";
 
 export default function CameraFeedPlayer() {
@@ -92,14 +94,10 @@ const UnableToCommunicateWithCamera = ({ reset }: { reset: () => void }) => {
       <div className="text-orange-400 text-sm">
         Unable to communicate with camera
       </div>
-      <button
-        className="text-orange-400 text-sm inline-flex items-center rounded-md px-3 py-2 gap-1"
-        type="button"
-        onClick={reset}
-      >
+      <Button variant="outline" size="sm" onClick={reset}>
         Reset
         <RotateCcw className="size-4" />
-      </button>
+      </Button>
     </div>
   );
 };
@@ -111,14 +109,10 @@ const StreamUnauthorized = ({ reset }: { reset: () => void }) => {
       <div className="text-orange-400 text-sm border-b border-orange-400 rounded-md px-3 py-1">
         Stream authentication failed
       </div>
-      <button
-        className="text-orange-400 text-sm inline-flex items-center rounded-md px-3 py-2 gap-1"
-        type="button"
-        onClick={reset}
-      >
+      <Button variant="outline" size="sm" onClick={reset}>
         Reset
         <RotateCcw className="size-4" />
-      </button>
+      </Button>
     </div>
   );
 };
