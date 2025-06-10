@@ -1,4 +1,4 @@
-import { AlertTriangleIcon, Loader2 } from "lucide-react";
+import { AlertTriangleIcon, Loader2, RotateCcw } from "lucide-react";
 import React, { useEffect } from "react";
 
 import { useCameraFeed } from "@/lib/camera/camera-feed-context";
@@ -14,6 +14,7 @@ export default function CameraFeedPlayer() {
     playerStatus,
     setPlayerStatus,
     setPlayedOn,
+    reset,
   } = useCameraFeed();
 
   useEffect(() => {
@@ -31,12 +32,12 @@ export default function CameraFeedPlayer() {
   }
 
   if (!streamUrl) {
-    return <FallbackOverlay />;
+    return <FallbackOverlay reset={reset} />;
   }
 
   return (
     <>
-      <FallbackOverlay />
+      <FallbackOverlay reset={reset} />
       <CameraFeedWatermark />
       <VideoStreamPlayer
         playerRef={playerRef as React.RefObject<HTMLVideoElement>}
@@ -55,12 +56,12 @@ export default function CameraFeedPlayer() {
   );
 }
 
-const FallbackOverlay = () => {
+const FallbackOverlay = ({ reset }: { reset: () => void }) => {
   const { isAuthenticating, playerStatus, isCameraStatusError } =
     useCameraFeed();
 
   if (isCameraStatusError && playerStatus !== "playing") {
-    return <UnableToCommunicateWithCamera />;
+    return <UnableToCommunicateWithCamera reset={reset} />;
   }
 
   if (
@@ -72,7 +73,7 @@ const FallbackOverlay = () => {
   }
 
   if (playerStatus === "unauthorized") {
-    return <StreamUnauthorized />;
+    return <StreamUnauthorized reset={reset} />;
   }
 };
 
@@ -84,24 +85,40 @@ const StreamLoading = () => {
   );
 };
 
-const UnableToCommunicateWithCamera = () => {
+const UnableToCommunicateWithCamera = ({ reset }: { reset: () => void }) => {
   return (
     <div className="absolute inset-0 size-full bg-gray-950 flex flex-col gap-2 items-center justify-center">
       <AlertTriangleIcon className="size-6 text-orange-400" />
       <div className="text-orange-400 text-sm">
         Unable to communicate with camera
       </div>
+      <button
+        className="text-orange-400 text-sm inline-flex items-center rounded-md px-3 py-2 gap-1"
+        type="button"
+        onClick={reset}
+      >
+        Reset
+        <RotateCcw className="size-4" />
+      </button>
     </div>
   );
 };
 
-const StreamUnauthorized = () => {
+const StreamUnauthorized = ({ reset }: { reset: () => void }) => {
   return (
     <div className="absolute inset-0 size-full bg-gray-950 flex flex-col gap-2 items-center justify-center">
       <AlertTriangleIcon className="size-6 text-orange-400" />
-      <div className="text-orange-400 text-sm">
+      <div className="text-orange-400 text-sm border-b border-orange-400 rounded-md px-3 py-1">
         Stream authentication failed
       </div>
+      <button
+        className="text-orange-400 text-sm inline-flex items-center rounded-md px-3 py-2 gap-1"
+        type="button"
+        onClick={reset}
+      >
+        Reset
+        <RotateCcw className="size-4" />
+      </button>
     </div>
   );
 };
