@@ -106,7 +106,7 @@ const StreamUnauthorized = ({ reset }: { reset: () => void }) => {
   return (
     <div className="absolute inset-0 size-full bg-gray-950 flex flex-col gap-2 items-center justify-center">
       <AlertTriangleIcon className="size-6 text-orange-400" />
-      <div className="text-orange-400 text-sm border-b border-orange-400 rounded-md px-3 py-1">
+      <div className="text-orange-400 text-sm">
         Stream authentication failed
       </div>
       <Button variant="outline" size="sm" onClick={reset}>

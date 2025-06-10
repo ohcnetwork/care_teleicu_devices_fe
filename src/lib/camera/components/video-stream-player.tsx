@@ -157,7 +157,6 @@ export const VideoStreamPlayer = ({
     } else {
       startMSE();
     }
-
     return () => {
       cleanup();
     };
