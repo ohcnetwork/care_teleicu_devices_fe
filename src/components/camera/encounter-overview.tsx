@@ -85,10 +85,6 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     setIsAwayFromPreset(false);
   };
 
-  if (encounter.status === "completed") {
-    return null;
-  }
-
   if (isLoading || !cameras) {
     return null;
   }
