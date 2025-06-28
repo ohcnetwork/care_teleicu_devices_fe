@@ -27,13 +27,12 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
   const [isAwayFromPreset, setIsAwayFromPreset] = useState(false);
 
   const { data: cameras, isLoading } = useQuery({
-    queryKey: ["camera-devices", encounter.current_location?.id],
+    queryKey: ["camera-devices", encounter.id],
     queryFn: query(camerasOfPresetLocationApi.list, {
       pathParams: {
-        locationId: encounter.current_location?.id ?? "",
+        encounterId: encounter.id,
       },
     }),
-    enabled: !!encounter.current_location,
   });
 
   const { data: positionPresets, isFetching: isFetchingPresets } = useQuery({
