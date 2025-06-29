@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ActivityIcon, AlertTriangle, SettingsIcon } from "lucide-react";
 import { navigate, usePathParams } from "raviger";
+import { Trans } from "react-i18next";
 
 import deviceApi from "@/lib/device/deviceApi";
 import { DeviceListResponse } from "@/lib/device/types";
@@ -171,12 +172,17 @@ const LinkableDeviceCallout = ({
         <ActivityIcon className="size-4 text-yellow-500 mt-0.5 shrink-0" />
         <span className="text-yellow-700">
           <p>
-            {t("a_vitals_observation_device")}{" "}
-            <strong className="font-semibold">
-              {device.user_friendly_name || device.registered_name}
-            </strong>{" "}
-            ({device.care_metadata.type}){" "}
-            {t("is_available_in_this_encounter_location")}
+            <Trans
+              i18nKey="vital_observation_device_availability"
+              values={{
+                device_name:
+                  device.user_friendly_name || device.registered_name,
+                device_type: device.care_metadata.type,
+              }}
+              components={{
+                strong: <strong className="font-semibold" />,
+              }}
+            />
           </p>
           <p>{t("do_you_want_to_associate_it_to_this_encounter")}</p>
         </span>

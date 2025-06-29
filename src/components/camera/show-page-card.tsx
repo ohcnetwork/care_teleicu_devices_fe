@@ -876,8 +876,9 @@ const CameraPositionPresets = ({
                   {t("delete_position_preset")}
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  {t("are_you_sure_you_want_to_delete_the_preset")}"
-                  {presetToDelete?.name}"? {t("this_action_cannot_be_undone")}
+                  {t("delete_preset_confirmation", {
+                    preset_name: presetToDelete?.name,
+                  })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
