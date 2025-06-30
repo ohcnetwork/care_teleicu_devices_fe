@@ -55,24 +55,32 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
     }),
   });
 
-  useEffect(() => {
-    if (isFetchingPresets) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (isFetchingPresets) {
+        return;
+      }
 
-    if (positionPresets?.results.length) {
-      setSelectedPreset(
-        positionPresets.results.find((p) => p.is_default) ||
-          positionPresets.results[0],
-      );
-    }
-  }, [positionPresets?.results.length, isFetchingPresets]);
+      if (positionPresets?.results.length) {
+        setSelectedPreset(
+          positionPresets.results.find((p) => p.is_default) ||
+            positionPresets.results[0],
+        );
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [positionPresets?.results.length, isFetchingPresets],
+  );
 
-  useEffect(() => {
-    if (selectedPreset) {
-      absoluteMove(selectedPreset.ptz);
-    }
-  }, [selectedPreset]);
+  useEffect(
+    () => {
+      if (selectedPreset) {
+        absoluteMove(selectedPreset.ptz);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedPreset],
+  );
 
   // Set the first camera as active when cameras data is loaded
   if (cameras?.results.length && !activeCamera) {
