@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ActivityIcon, AlertTriangle, SettingsIcon } from "lucide-react";
 import { navigate, usePathParams } from "raviger";
-import { Trans } from "react-i18next";
 
 import deviceApi from "@/lib/device/deviceApi";
 import { DeviceListResponse } from "@/lib/device/types";
@@ -14,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import PluginComponent from "@/components/common/plugin-component";
+import { Trans } from "@/components/common/trans";
 
 import { useTranslation } from "@/hooks/useTranslation";
 

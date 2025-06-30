@@ -15,7 +15,7 @@
   "database": "Database",
   "delete": "Delete",
   "delete_position_preset": "Delete Position Preset",
-  "delete_preset_confirmation": "Are you sure you want to delete the preset {{preset_name}}? This action cannot be undone",
+  "delete_preset_confirmation": "Are you sure you want to delete the preset <strong>{{preset_name}}</strong>? This action cannot be undone",
   "details_about_the_connected_vitals_observation_device": "Details about the connected vitals observation device",
   "device_type": "Device Type:",
   "do_you_want_to_associate_it_to_this_encounter": "Do you want to associate it to this encounter?",

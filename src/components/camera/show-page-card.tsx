@@ -70,6 +70,7 @@ import {
 import { LocationSearch } from "@/components/common/location-search";
 import PluginComponent from "@/components/common/plugin-component";
 import { TableSkeleton } from "@/components/common/skeleton-loading";
+import { Trans } from "@/components/common/trans";
 
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -876,9 +877,15 @@ const CameraPositionPresets = ({
                   {t("delete_position_preset")}
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  {t("delete_preset_confirmation", {
-                    preset_name: presetToDelete?.name,
-                  })}
+                  <Trans
+                    i18nKey="delete_preset_confirmation"
+                    values={{
+                      preset_name: presetToDelete?.name,
+                    }}
+                    components={{
+                      strong: <strong className="font-semibold" />,
+                    }}
+                  />
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
