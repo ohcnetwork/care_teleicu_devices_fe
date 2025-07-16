@@ -33,6 +33,7 @@ export const CameraEncounterOverview = ({ encounter }: Props) => {
         encounterId: encounter.id,
       },
     }),
+    enabled: !!encounter.current_location?.id,
   });
 
   const { data: positionPresets, isFetching: isFetchingPresets } = useQuery({
