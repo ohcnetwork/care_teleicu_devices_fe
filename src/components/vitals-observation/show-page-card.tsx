@@ -25,15 +25,18 @@ interface Props {
         care_type: "gateway";
         care_metadata: {
           endpoint_address: string;
+          insecure: boolean;
         };
       } | null;
     };
   };
 }
 
-const getWebSocketUrl = (gateway: string, device: string) => {
-  const protocol = location.protocol === "https:" ? "wss:" : "wss:";
-  return `${protocol}//${gateway}/observations/${device}`;
+const getWebSocketUrl = ({ care_metadata: meta }: Props["device"]) => {
+  const scheme = meta.gateway?.care_metadata.insecure ? "ws:" : "wss:";
+  const gateway = meta.gateway?.care_metadata.endpoint_address;
+  const deviceAddress = meta.endpoint_address;
+  return `${scheme}//${gateway}/observations/${deviceAddress}`;
 };
 
 export const VitalsObservationShowPageCard = ({ device }: Props) => {
@@ -51,10 +54,7 @@ export const VitalsObservationShowPageCard = ({ device }: Props) => {
     );
   }
 
-  const socketUrl = getWebSocketUrl(
-    device.care_metadata.gateway.care_metadata.endpoint_address,
-    device.care_metadata.endpoint_address,
-  );
+  const socketUrl = getWebSocketUrl(device);
 
   if (device.care_metadata.type !== "HL7-Monitor") {
     return null;
