@@ -94,9 +94,11 @@ export const VitalsObservationEncounterOverview = ({ encounter }: Props) => {
   );
 };
 
-const getWebSocketUrl = (gateway: string, device: string) => {
-  const protocol = location.protocol === "https:" ? "wss:" : "wss:";
-  return `${protocol}//${gateway}/observations/${device}`;
+const getWebSocketUrl = ({ care_metadata: meta }: VitalsObservationDevice) => {
+  const scheme = meta.gateway?.care_metadata.insecure ? "ws:" : "wss:";
+  const gateway = meta.gateway?.care_metadata.endpoint_address;
+  const deviceAddress = meta.endpoint_address;
+  return `${scheme}//${gateway}/observations/${deviceAddress}`;
 };
 
 const EncounterVitalsObservation = ({
@@ -135,10 +137,7 @@ const EncounterVitalsObservation = ({
     );
   }
 
-  const socketUrl = getWebSocketUrl(
-    device.care_metadata.gateway.care_metadata.endpoint_address,
-    device.care_metadata.endpoint_address,
-  );
+  const socketUrl = getWebSocketUrl(device);
 
   return <VitalsObservationMonitor socketUrl={socketUrl} />;
 };
