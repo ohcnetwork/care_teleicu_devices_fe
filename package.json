@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@originjs/vite-plugin-federation": "^1.4.0",
+    "@rollup/rollup-darwin-arm64": "^4.53.3",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.2",
